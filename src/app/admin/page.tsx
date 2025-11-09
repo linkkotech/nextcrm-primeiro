@@ -1,12 +1,12 @@
 export const dynamic = "force-dynamic";
 
-export default function AdminDashboardPage() {
+export default function AdminHomePage() {
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-3xl font-semibold">Dashboard</h1>
+        <h1 className="text-3xl font-semibold">Home</h1>
         <p className="text-sm text-muted-foreground">
-          Visão geral da plataforma, métricas de uso e operações críticas.
+          Visão geral do sistema administrativo
         </p>
       </header>
 
@@ -19,17 +19,19 @@ export default function AdminDashboardPage() {
         </article>
         <article className="rounded-lg border bg-card p-5">
           <span className="text-xs uppercase tracking-wide text-muted-foreground">
-            Usuários no Último Dia
+            Usuários Totais
           </span>
           <p className="mt-2 text-3xl font-bold">0</p>
         </article>
         <article className="rounded-lg border bg-card p-5">
           <span className="text-xs uppercase tracking-wide text-muted-foreground">
-            Erros Críticos
+            Status do Sistema
           </span>
-          <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">0</p>
+          <p className="mt-2 text-3xl font-bold text-green-600">Online</p>
         </article>
       </div>
     </section>
   );
 }
+
+
