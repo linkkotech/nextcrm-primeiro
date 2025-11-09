@@ -1,41 +1,45 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient as createSupabaseServerClient, type CookieOptions } from '@supabase/ssr'
+import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-// Cliente para uso no servidor (Server Components, Server Actions, API Routes)
-export function createServerClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+/**
+ * Cria um cliente Supabase para uso em Server Components e Server Actions
+ * Gerencia cookies automaticamente para manter a sessão
+ */
+export async function createServerClient() {
+  const cookieStore = await cookies()
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file.'
-    );
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createSupabaseServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 }
 
-// Cliente para uso no cliente (Client Components)
-// Este cliente pode ser usado diretamente em componentes React com 'use client'
+/**
+ * Cria um cliente Supabase para uso em Client Components
+ * Gerencia cookies automaticamente no browser
+ */
 export function createBrowserClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file.'
-    );
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createSupabaseBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 }
-
-// Cliente singleton para uso no servidor (reutiliza a mesma instância)
-let serverClient: ReturnType<typeof createClient> | null = null;
-
-export function getServerClient() {
-  if (!serverClient) {
-    serverClient = createServerClient();
-  }
-  return serverClient;
-}
-

@@ -1,7 +1,9 @@
 "use server";
 
-import { authenticateWithCredentials, registerUser } from "@/services/auth.service";
+import { authenticateWithCredentials, registerUser, signOutUser } from "@/services/auth.service";
 import { loginSchema, signupSchema } from "@/schemas/auth.schemas";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export interface LoginActionResult {
   error?: string;
@@ -30,22 +32,21 @@ export async function loginAction(data: unknown): Promise<LoginActionResult> {
 
   const { email, password } = validatedFields.data;
 
-  // A Server Action agora apenas orquestra a chamada para o serviço
+  // Chamar o serviço de autenticação
   const result = await authenticateWithCredentials(email, password);
 
   if (!result.success) {
     return { error: result.message };
   }
 
-  // O redirecionamento é gerenciado pelo middleware após o signIn criar a sessão
-  // Não precisamos fazer redirect() manual aqui
-  return {};
+  // Revalidar cache e redirecionar
+  revalidatePath('/', 'layout');
+  redirect('/admin/dashboard');
 }
 
 /**
  * Server Action para registro de novo usuário.
  * Valida os dados de entrada, cria o usuário e faz login automático.
- * O redirecionamento é gerenciado pelo middleware após a criação da sessão.
  * 
  * @param data - Dados do formulário de signup (name, email, password, confirmPassword)
  * @returns Resultado da ação com possível erro ou sucesso
@@ -60,23 +61,29 @@ export async function signupAction(data: unknown): Promise<SignupActionResult> {
 
   const { name, email, password } = validatedFields.data;
 
-  // Criar o usuário
+  // Criar o usuário (signUp do Supabase já faz login automático)
   const registerResult = await registerUser(name, email, password);
 
   if (!registerResult.success) {
     return { error: registerResult.message };
   }
 
-  // Fazer login automático após o cadastro
-  const loginResult = await authenticateWithCredentials(email, password);
-
-  if (!loginResult.success) {
-    return { 
-      error: "Conta criada, mas houve um erro no login. Tente fazer login manualmente." 
-    };
-  }
-
-  // Sucesso: usuário criado e logado
-  return { success: true };
+  // Revalidar cache e redirecionar
+  revalidatePath('/', 'layout');
+  redirect('/admin/dashboard');
 }
 
+/**
+ * Server Action para logout do usuário.
+ */
+export async function logoutAction() {
+  const result = await signOutUser();
+  
+  if (!result.success) {
+    return { error: result.message };
+  }
+
+  // Revalidar cache e redirecionar para login
+  revalidatePath('/', 'layout');
+  redirect('/sign-in');
+}
