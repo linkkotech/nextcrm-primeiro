@@ -17,6 +17,7 @@
     "next-auth": "^5.0.0-beta.19",
     "react": "19.0.0-rc-8076b5e8-20241007",
     "react-dom": "19.0.0-rc-8076b5e8-20241007",
+    "stripe": "^17.4.0",
     "tailwindcss": "4.0.0-alpha.9",
     "zod": "^3.23.8"
   },
