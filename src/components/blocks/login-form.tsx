@@ -6,20 +6,19 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/untitled/Button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+} from "@/components/untitled/Card"
+import { Input } from "@/components/untitled/Input"
+import { Label } from "@/components/untitled/Label"
+import { Alert, AlertDescription } from "@/components/untitled/Alert"
 import { loginSchema, type LoginInput } from "@/schemas/auth.schemas"
 import { loginAction } from "@/lib/actions/auth.actions"
-import { AlertCircle } from "lucide-react"
 
 export function LoginForm() {
   const router = useRouter()
@@ -58,11 +57,17 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form 
+          method="post"
+          onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleSubmit(onSubmit)(e)
+          }}
+        >
           <div className="grid gap-4">
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -86,7 +91,7 @@ export function LoginForm() {
                 <Label htmlFor="password">Senha</Label>
                 <Link
                   href="/forgot-password"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-brand-600 hover:text-brand-700"
                 >
                   Esqueceu a senha?
                 </Link>
@@ -102,7 +107,7 @@ export function LoginForm() {
               )}
             </div>
             
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" variant="primary" className="w-full" disabled={isPending}>
               {isPending ? "Entrando..." : "Entrar"}
             </Button>
             
@@ -113,7 +118,7 @@ export function LoginForm() {
           
           <div className="mt-4 text-center text-sm">
             Não tem uma conta?{" "}
-            <Link href="/sign-up" className="underline underline-offset-4">
+            <Link href="/sign-up" className="underline underline-offset-4 text-brand-600 hover:text-brand-700">
               Criar conta
             </Link>
           </div>

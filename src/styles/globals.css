@@ -3,19 +3,26 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark light;
+  color-scheme: light dark;
 }
-
-body {
-  min-height: 100vh;
-  background-color: rgb(9 9 11);
-  color: rgb(244 244 245);
-}
-
-
 
 @layer base {
   :root {
+    /* Violet brand colors */
+    --brand: 262.1 83.3% 57.8%;
+    --brand-50: 250 100% 98%;
+    --brand-100: 251 91% 95%;
+    --brand-200: 251 95% 92%;
+    --brand-300: 252 95% 85%;
+    --brand-400: 258 90% 76%;
+    --brand-500: 262 83% 58%;
+    --brand-600: 263 70% 50%;
+    --brand-700: 264 61% 43%;
+    --brand-800: 265 56% 35%;
+    --brand-900: 265 47% 29%;
+    --brand-950: 266 47% 21%;
+
+    /* Base colors */
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
@@ -42,7 +49,23 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
+    /* Violet brand colors for dark mode */
+    --brand: 263.4 70% 50.4%;
+    --brand-50: 266 47% 21%;
+    --brand-100: 265 47% 29%;
+    --brand-200: 265 56% 35%;
+    --brand-300: 264 61% 43%;
+    --brand-400: 263 70% 50%;
+    --brand-500: 262 83% 58%;
+    --brand-600: 258 90% 76%;
+    --brand-700: 252 95% 85%;
+    --brand-800: 251 95% 92%;
+    --brand-900: 251 91% 95%;
+    --brand-950: 250 100% 98%;
+
+    /* Base colors for dark mode */
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
     --card: 224 71.4% 4.1%;
@@ -70,13 +93,22 @@ body {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+  }
+
+  /* React Aria Components base styles */
+  [data-focus-visible] {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  [data-pressed] {
+    @apply scale-[0.98];
   }
 }

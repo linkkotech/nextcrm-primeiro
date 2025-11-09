@@ -6,20 +6,19 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/untitled/Button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+} from "@/components/untitled/Card"
+import { Input } from "@/components/untitled/Input"
+import { Label } from "@/components/untitled/Label"
+import { Alert, AlertDescription } from "@/components/untitled/Alert"
 import { signupSchema, type SignupInput } from "@/schemas/auth.schemas"
 import { signupAction } from "@/lib/actions/auth.actions"
-import { AlertCircle } from "lucide-react"
 
 export function SignupForm() {
   const router = useRouter()
@@ -58,11 +57,17 @@ export function SignupForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form 
+          method="post"
+          onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleSubmit(onSubmit)(e)
+          }}
+        >
           <div className="grid gap-4">
             {error && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -123,7 +128,7 @@ export function SignupForm() {
               )}
             </div>
             
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" variant="primary" className="w-full" disabled={isPending}>
               {isPending ? "Criando conta..." : "Criar conta"}
             </Button>
             
@@ -134,7 +139,7 @@ export function SignupForm() {
           
           <div className="mt-4 text-center text-sm">
             Já tem uma conta?{" "}
-            <Link href="/sign-in" className="underline underline-offset-4">
+            <Link href="/sign-in" className="underline underline-offset-4 text-brand-600 hover:text-brand-700">
               Fazer login
             </Link>
           </div>
