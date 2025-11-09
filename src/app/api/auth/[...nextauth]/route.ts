@@ -4,17 +4,16 @@ import { compare } from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-const { handlers, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+const { handlers, auth, signIn, signOut } = NextAuth({
+  // Removido o adapter pois não é compatível com Credentials provider + JWT strategy
   session: {
-    strategy: "database",
+    strategy: "jwt", // Mudado de "database" para "jwt" para melhor compatibilidade
   },
   providers: [
     Credentials({
@@ -57,34 +56,38 @@ const { handlers, auth } = NextAuth({
     signIn: "/(auth)/sign-in",
   },
   callbacks: {
-    async session({ session, user }) {
-      if (!session.user || !user) {
-        return session;
+    async jwt({ token, user }) {
+      // Quando o usuário faz login, adicionar o ID ao token
+      if (user) {
+        token.id = user.id;
       }
+      return token;
+    },
+    async session({ session, token }) {
+      // Adicionar dados do token à sessão
+      if (token && session.user) {
+        session.user.id = token.id as string;
 
-      const memberships = await prisma.workspaceMember.findMany({
-        where: { userId: user.id },
-        select: {
-          workspace: {
-            select: {
-              id: true,
-              slug: true,
+        // Buscar workspaces do usuário
+        const memberships = await prisma.workspaceMember.findMany({
+          where: { userId: token.id as string },
+          select: {
+            workspace: {
+              select: {
+                id: true,
+                slug: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-          workspaces: memberships.map(({ workspace }) => workspace),
-        },
-      };
+        session.user.workspaces = memberships.map(({ workspace }) => workspace);
+      }
+
+      return session;
     },
   },
 });
 
 export const { GET, POST } = handlers;
-export { auth };
+export { auth, signIn, signOut };
