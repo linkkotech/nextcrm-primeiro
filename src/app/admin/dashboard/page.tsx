@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
           <span className="text-xs uppercase tracking-wide text-muted-foreground">
             Erros Críticos
           </span>
-          <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">0</p>
+          <p className="mt-2 text-3xl font-bold text-green-600 dark-mode:text-green-400">0</p>
         </article>
       </div>
     </section>

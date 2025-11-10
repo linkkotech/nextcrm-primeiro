@@ -13,7 +13,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
+  let user = null;
+  try {
+    user = await getUser();
+  } catch (error) {
+    console.error("Error fetching user in admin layout:", error);
+    // Continuar mesmo se houver erro ao buscar usuário
+  }
 
   return (
     <AdminLayoutClient

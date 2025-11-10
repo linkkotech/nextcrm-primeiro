@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDown, LogOut, Settings01, User01 } from "@untitledui/icons";
+import { ChevronDown, Settings01, User01 } from "@untitledui/icons";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth.actions";
 import { useRouter } from "next/navigation";

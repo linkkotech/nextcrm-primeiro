@@ -39,7 +39,7 @@ const navItemsSimple: NavItemType[] = [
     icon: HomeLine,
     items: [
       { label: "Overview", href: "/admin", icon: Grid03 },
-      { label: "Workspaces", href: "/admin/workspaces", icon: Package },
+      { label: "Products", href: "/admin/products", icon: Package },
       { label: "Orders", href: "/admin/orders", icon: CurrencyDollarCircle },
       { label: "Customers", href: "/admin/customers", icon: Users01 },
     ],
@@ -63,7 +63,7 @@ const navItemsSimple: NavItemType[] = [
       { label: "View all", href: "/admin/projects", icon: Rows01 },
       { label: "Personal", href: "/admin/projects/personal", icon: User01 },
       { label: "Team", href: "/admin/projects/team", icon: Users01 },
-      { label: "Shared with me", href: "/admin/projects/shared", icon: UsersPlus },
+      { label: "Shared with me", href: "/admin/projects/shared-with-me", icon: UsersPlus },
       { label: "Archive", href: "/admin/projects/archive", icon: Archive },
     ],
   },

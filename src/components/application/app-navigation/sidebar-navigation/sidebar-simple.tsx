@@ -89,12 +89,12 @@ export function SidebarNavigationSimple({
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                       active
-                        ? "bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-400"
+                        ? "bg-brand-50 text-brand-700 dark-mode:bg-brand-950/50 dark-mode:text-brand-400"
                         : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
                     {item.icon && (
-                      <item.icon className={cn("h-5 w-5", active && "text-brand-600 dark:text-brand-400")} />
+                      <item.icon className={cn("h-5 w-5", active && "text-brand-600 dark-mode:text-brand-400")} />
                     )}
                     <span className="flex-1">{item.label}</span>
                     {item.badge && (
@@ -123,7 +123,7 @@ export function SidebarNavigationSimple({
                               className={cn(
                                 "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                                 subActive
-                                  ? "bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-400"
+                                  ? "bg-brand-50 text-brand-700 dark-mode:bg-brand-950/50 dark-mode:text-brand-400"
                                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                               )}
                             >
@@ -167,12 +167,12 @@ export function SidebarNavigationSimple({
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                       active
-                        ? "bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-400"
+                        ? "bg-brand-50 text-brand-700 dark-mode:bg-brand-950/50 dark-mode:text-brand-400"
                         : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
                     {item.icon && (
-                      <item.icon className={cn("h-5 w-5", active && "text-brand-600 dark:text-brand-400")} />
+                      <item.icon className={cn("h-5 w-5", active && "text-brand-600 dark-mode:text-brand-400")} />
                     )}
                     <span className="flex-1">{item.label}</span>
                     {item.badge && (

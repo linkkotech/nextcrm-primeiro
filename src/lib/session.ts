@@ -28,28 +28,62 @@ export async function getSupabaseUser(): Promise<User | null> {
  * @returns Dados do usuário do Prisma ou null se não autenticado
  */
 export async function getUser() {
-  const supabaseUser = await getSupabaseUser();
-  
-  if (!supabaseUser) {
-    return null;
-  }
+  try {
+    const supabaseUser = await getSupabaseUser();
+    
+    if (!supabaseUser) {
+      return null;
+    }
 
-  // Buscar dados adicionais do Prisma
-  const user = await prisma.user.findUnique({
-    where: { supabaseUserId: supabaseUser.id },
-    include: {
-      adminRole: true,
-      workspacesOwned: true,
-      workspaceMemberships: {
-        include: {
-          workspace: true,
-          workspaceRole: true,
+    // Buscar dados adicionais do Prisma
+    // Usar select mais simples para evitar problemas com relações opcionais
+    const user = await prisma.user.findUnique({
+      where: { supabaseUserId: supabaseUser.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        adminRole: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workspacesOwned: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        workspaceMemberships: {
+          select: {
+            id: true,
+            workspace: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            workspaceRole: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
         },
       },
-    },
-  });
+    });
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error("Error in getUser():", error);
+    // Retornar null em caso de erro para não quebrar a aplicação
+    return null;
+  }
 }
 
 /**
