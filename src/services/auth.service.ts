@@ -22,7 +22,11 @@ export async function authenticateWithCredentials(
   try {
     const supabase = await createServerClient();
 
-    // Autentica com Supabase Auth
+    /**
+     * Step 1: Authenticate com Supabase Auth
+     * Supabase gerencia tokens JWT e refresh tokens
+     * Não valida se user existe no Prisma ainda
+     */
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -44,13 +48,22 @@ export async function authenticateWithCredentials(
       };
     }
 
-    // Buscar ou criar registro User no Prisma
+    /**
+     * Step 2: Sync com Prisma User
+     * Supabase é a source of truth para autenticação
+     * Prisma é a source of truth para dados de aplicação
+     * Mantém os dois em sync
+     */
     let user = await prisma.user.findUnique({
       where: { supabaseUserId: data.user.id },
     });
 
     if (!user) {
-      // Criar registro User se não existir
+      /**
+       * Auto-provisioning: Criar User no Prisma se não existir
+       * Permite que primeiro login automático crie registro
+       * Alternativa: ter signup separado que cria ambos
+       */
       user = await prisma.user.create({
         data: {
           supabaseUserId: data.user.id,

@@ -6,17 +6,17 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { Button } from "@/components/untitled/Button"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/untitled/Card"
-import { Input } from "@/components/untitled/Input"
-import { Label } from "@/components/untitled/Label"
-import { Alert, AlertDescription } from "@/components/untitled/Alert"
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { signupSchema, type SignupInput } from "@/schemas/auth.schemas"
 import { signupAction } from "@/lib/actions/auth.actions"
 
@@ -128,7 +128,12 @@ export function SignupForm() {
               )}
             </div>
             
-            <Button type="submit" variant="primary" className="w-full" disabled={isPending}>
+            <Button 
+              type="submit" 
+              variant="default"
+              className="w-full" 
+              disabled={isPending}
+            >
               {isPending ? "Criando conta..." : "Criar conta"}
             </Button>
             

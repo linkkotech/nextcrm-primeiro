@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SidebarNavigation } from "@/components/admin/SidebarNavigation";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminLayoutClient } from "@/components/admin/AdminLayoutClient";
 import { getUser } from "@/lib/session";

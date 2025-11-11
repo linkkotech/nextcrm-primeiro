@@ -3,11 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "@untitledui/icons";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItemType } from "../config";
-import { Input } from "@/components/untitled/Input";
+import { Input } from "@/components/ui/input";
 
 interface SidebarNavigationSimpleProps {
   items: NavItemType[];

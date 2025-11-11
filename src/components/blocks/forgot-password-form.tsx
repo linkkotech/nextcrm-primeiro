@@ -1,16 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/untitled/Button"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/untitled/Card"
-import { Input } from "@/components/untitled/Input"
-import { Label } from "@/components/untitled/Label"
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export function ForgotPasswordForm() {
   return (
@@ -33,7 +33,7 @@ export function ForgotPasswordForm() {
                 required
               />
             </div>
-            <Button type="submit" variant="primary" className="w-full">
+            <Button type="submit" variant="default" className="w-full">
               Enviar link de recuperação
             </Button>
           </div>

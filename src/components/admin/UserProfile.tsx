@@ -1,7 +1,6 @@
 "use client";
 
-import { ChevronDown, Settings01, User01 } from "@untitledui/icons";
-import { LogOut } from "lucide-react";
+import { ChevronDown, Settings, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth.actions";
 import { useRouter } from "next/navigation";
@@ -12,8 +11,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/untitled/DropdownMenu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/untitled/Avatar";
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserProfileProps {
   name?: string | null;
@@ -64,11 +63,11 @@ export function UserProfile({ name, email, image }: UserProfileProps) {
         <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
-          <User01 className="mr-2 h-4 w-4" />
+          <User className="mr-2 h-4 w-4" />
           <span>Perfil</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/admin/settings")}>
-          <Settings01 className="mr-2 h-4 w-4" />
+          <Settings className="mr-2 h-4 w-4" />
           <span>Configurações</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

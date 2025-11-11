@@ -8,6 +8,7 @@ Plataforma SaaS de CRM multi-tenant construída com Next.js 16 (App Router), Pri
 - Prisma ORM conectado a PostgreSQL (Supabase)
 - Autenticação via NextAuth v5 (Credentials Provider + Prisma Adapter)
 - Tailwind CSS 4 (alpha)
+- shadcn/ui para componentes acessíveis
 - TypeScript, Zod e ESLint 9
 
 ## Como iniciar
