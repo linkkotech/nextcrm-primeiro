@@ -54,7 +54,7 @@ export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarP
                 "w-full justify-start h-auto py-3 px-3 flex-col items-start",
                 isActive && "bg-primary text-primary-foreground"
               )}
-              onClick={() => onSectionChange(item.id as any)}
+              onClick={() => onSectionChange(item.id as "content" | "design" | "settings" | "advanced")}
             >
               <div className="flex items-center gap-2 w-full mb-1">
                 <Icon className="h-4 w-4" />

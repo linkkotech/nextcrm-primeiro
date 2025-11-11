@@ -12,7 +12,7 @@ interface Block {
   subtitle: string;
   clickCount?: number;
   isActive: boolean;
-  content: Record<string, any>;
+  content: Record<string, unknown>;
   icon: React.ReactNode;
 }
 
