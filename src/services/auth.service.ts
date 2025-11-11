@@ -8,12 +8,16 @@ export interface AuthResult {
 }
 
 /**
- * Autentica um usuário com credenciais (email e senha).
- * Usa o Supabase Auth para criar a sessão oficial do usuário.
- * 
- * @param email - Email do usuário
- * @param password - Senha do usuário
- * @returns Resultado da autenticação com sucesso e mensagem
+ * Performs the credential authentication handshake against Supabase and mirrors the user into Prisma on demand.
+ *
+ * @example
+ * ```ts
+ * const result = await authenticateWithCredentials(email, password)
+ * if (!result.success) throw new Error(result.message)
+ * ```
+ *
+ * @throws {Error} When Supabase client creation fails.
+ * @returns {Promise<AuthResult>} Indicates success, error messaging, and the Prisma user identifier when available.
  */
 export async function authenticateWithCredentials(
   email: string,
@@ -91,13 +95,15 @@ export async function authenticateWithCredentials(
 }
 
 /**
- * Registra um novo usuário no sistema.
- * Cria o usuário no Supabase Auth e no Prisma.
- * 
- * @param name - Nome do usuário
- * @param email - Email do usuário
- * @param password - Senha do usuário
- * @returns Resultado do registro com sucesso e mensagem
+ * Creates a new Supabase account and persists the mirrored record in Prisma so application metadata stays in sync.
+ *
+ * @example
+ * ```ts
+ * const result = await registerUser(name, email, password)
+ * ```
+ *
+ * @throws {Error} When Supabase client creation fails.
+ * @returns {Promise<AuthResult>} Details whether the provisioning succeeded and exposes the Prisma user id on success.
  */
 export async function registerUser(
   name: string,
@@ -171,7 +177,15 @@ export async function registerUser(
 }
 
 /**
- * Faz logout do usuário atual
+ * Signs the active user out of Supabase so the browser tokens can be revoked server-side.
+ *
+ * @example
+ * ```ts
+ * await signOutUser()
+ * ```
+ *
+ * @throws {Error} When Supabase client creation fails.
+ * @returns {Promise<AuthResult>} A success flag and contextual message for UI feedback.
  */
 export async function signOutUser(): Promise<AuthResult> {
   try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Moon, Sun, Search } from "lucide-react";
+import { Bell, Moon, Sun, Search, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -21,7 +21,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function AdminHeaderBar() {
+interface AdminHeaderBarProps {
+  onToggleAiSidebar?: () => void;
+}
+
+export function AdminHeaderBar({ onToggleAiSidebar }: AdminHeaderBarProps) {
   const { setTheme, theme } = useTheme();
 
   return (
@@ -44,8 +48,20 @@ export function AdminHeaderBar() {
         </Breadcrumb>
       </div>
 
-      {/* Right side: Notifications | Theme Toggle | Search */}
+      {/* Right side: AI Assistant | Notifications | Theme Toggle | Search */}
       <div className="flex items-center gap-2">
+        {/* AI Assistant */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onToggleAiSidebar}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          <Sparkles className="h-5 w-5" />
+        </Button>
+
+        <Separator orientation="vertical" className="h-6" />
+
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

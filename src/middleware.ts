@@ -2,12 +2,14 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 /**
- * Middleware executado em TODA requisição
- * Responsabilidades:
- * 1. Manter sessão Supabase sincronizada (refresh se expirada)
- * 2. Redirecionar usuários não-autenticados para /sign-in
- * 3. Redirecionar autenticados de /sign-in para /admin/dashboard
- * 4. Preparar contexto para Server Components via cookies
+ * Centralises Supabase session refresh and access control across every incoming request.
+ *
+ * @example
+ * ```ts
+ * const response = await middleware(request)
+ * ```
+ *
+ * @returns {Promise<NextResponse>} A response with updated cookies or a redirect when access control fails.
  */
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -29,7 +31,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           )
-          // Atualiza cookies na response (para navegador)
+          // IMPORTANTE: também propaga cookies na response para manter tokens alinhados no browser
           supabaseResponse = NextResponse.next({
             request,
           })

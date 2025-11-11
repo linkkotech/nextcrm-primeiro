@@ -1,21 +1,34 @@
 import { createServerClient } from "@/lib/supabase";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
 
 /**
- * Busca a sessão atual do Supabase
- * @returns Sessão do Supabase ou null se não autenticado
+ * Fetches the current Supabase session so Server Components can reason about authentication state.
+ *
+ * @example
+ * ```ts
+ * const session = await getSession()
+ * ```
+ *
+ * @returns {Promise<Session | null>} The active session when authenticated, otherwise `null`.
  */
-export async function getSession() {
+export async function getSession(): Promise<Session | null> {
   const supabase = await createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
   return session;
 }
 
 /**
- * Busca o usuário autenticado do Supabase
- * @returns Usuário do Supabase ou null se não autenticado
+ * Obtains the Supabase user payload to access metadata such as the auth identifier and email verification status.
+ *
+ * @example
+ * ```ts
+ * const user = await getSupabaseUser()
+ * if (!user) throw new Error("Not authenticated")
+ * ```
+ *
+ * @returns {Promise<User | null>} The Supabase Auth user when logged in, otherwise `null`.
  */
 export async function getSupabaseUser(): Promise<User | null> {
   const supabase = await createServerClient();
@@ -24,8 +37,15 @@ export async function getSupabaseUser(): Promise<User | null> {
 }
 
 /**
- * Busca o usuário completo (Supabase + Prisma)
- * @returns Dados do usuário do Prisma ou null se não autenticado
+ * Combines Supabase identity with the enriched Prisma profile so downstream code can enforce workspace rules.
+ *
+ * @example
+ * ```ts
+ * const user = await getUser()
+ * if (!user) return redirect('/sign-in')
+ * ```
+ *
+ * @returns {Promise<Awaited<ReturnType<typeof prisma.user.findUnique>> | null>} A denormalised user record with memberships or `null` if unauthenticated.
  */
 export async function getUser() {
   try {
@@ -36,7 +56,7 @@ export async function getUser() {
     }
 
     // Buscar dados adicionais do Prisma
-    // Usar select mais simples para evitar problemas com relações opcionais
+    // EDGE CASE: relações opcionais nulas quebram seleção ampla; por isso usamos select explícito e resiliente
     const user = await prisma.user.findUnique({
       where: { supabaseUserId: supabaseUser.id },
       select: {
@@ -81,14 +101,20 @@ export async function getUser() {
     return user;
   } catch (error) {
     console.error("Error in getUser():", error);
-    // Retornar null em caso de erro para não quebrar a aplicação
+    // IMPORTANTE: devolver null mantém o fluxo sem expor detalhes sensíveis e evita falhas em Server Components
     return null;
   }
 }
 
 /**
- * Verifica se o usuário está autenticado
- * @returns true se autenticado, false caso contrário
+ * Lightweight helper to determine if there is an active Supabase session.
+ *
+ * @example
+ * ```ts
+ * const canAccess = await isAuthenticated()
+ * ```
+ *
+ * @returns {Promise<boolean>} `true` when a session exists, otherwise `false`.
  */
 export async function isAuthenticated(): Promise<boolean> {
   const session = await getSession();
@@ -96,9 +122,15 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 /**
- * Helper para proteger rotas
- * Redireciona para /sign-in se não autenticado
- * @returns Usuário autenticado
+ * Guards server codepaths by redirecting unauthenticated users to the sign-in screen.
+ *
+ * @example
+ * ```ts
+ * const user = await requireAuth()
+ * ```
+ *
+ * @throws {RedirectType} When no authenticated user is found, forcing navigation to `/sign-in`.
+ * @returns {Promise<NonNullable<Awaited<ReturnType<typeof getUser>>>>} The hydrated Prisma user upon success.
  */
 export async function requireAuth() {
   const user = await getUser();
@@ -111,8 +143,16 @@ export async function requireAuth() {
 }
 
 /**
- * Helper para verificar se usuário tem role de admin
- * @returns true se for admin, false caso contrário
+ * Determines if the authenticated user has platform-level administrative privileges.
+ *
+ * @example
+ * ```ts
+ * if (await isAdmin()) {
+ *   // render admin dashboard widgets
+ * }
+ * ```
+ *
+ * @returns {Promise<boolean>} `true` when the user has `super_admin` or `admin` role; otherwise `false`.
  */
 export async function isAdmin(): Promise<boolean> {
   const user = await getUser();
@@ -125,8 +165,14 @@ export async function isAdmin(): Promise<boolean> {
 }
 
 /**
- * Helper para verificar se usuário é super admin
- * @returns true se for super_admin, false caso contrário
+ * Checks if the authenticated user is the root `super_admin`, enabling tenant-wide maintenance flows.
+ *
+ * @example
+ * ```ts
+ * const isRoot = await isSuperAdmin()
+ * ```
+ *
+ * @returns {Promise<boolean>} `true` when the admin role is `super_admin`, otherwise `false`.
  */
 export async function isSuperAdmin(): Promise<boolean> {
   const user = await getUser();

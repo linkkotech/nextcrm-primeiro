@@ -15,12 +15,16 @@ export interface SignupActionResult {
 }
 
 /**
- * Server Action para autenticação de usuário.
- * Valida os dados de entrada e chama o serviço de autenticação.
- * O redirecionamento é gerenciado pelo middleware após a criação da sessão.
- * 
- * @param data - Dados do formulário de login (email e password)
- * @returns Resultado da ação com possível erro
+ * Handles credential-based authentication as a Next.js Server Action so the session cookies are issued on the server.
+ *
+ * @example
+ * ```ts
+ * const result = await loginAction({ email, password })
+ * if (result?.error) toast.error(result.error)
+ * ```
+ *
+ * @throws {RedirectType} When the credentials are valid and the user is redirected to the admin dashboard.
+ * @returns {Promise<LoginActionResult>} A structured error payload when validation or authentication fails.
  */
 export async function loginAction(data: unknown): Promise<LoginActionResult> {
   // Validação dos dados de entrada
@@ -45,11 +49,16 @@ export async function loginAction(data: unknown): Promise<LoginActionResult> {
 }
 
 /**
- * Server Action para registro de novo usuário.
- * Valida os dados de entrada, cria o usuário e faz login automático.
- * 
- * @param data - Dados do formulário de signup (name, email, password, confirmPassword)
- * @returns Resultado da ação com possível erro ou sucesso
+ * Provisions a Supabase session and corresponding Prisma user record for first-time signups.
+ *
+ * @example
+ * ```ts
+ * const result = await signupAction(formData)
+ * if (result?.error) setFormError(result.error)
+ * ```
+ *
+ * @throws {RedirectType} When the user is created successfully and redirected to the admin dashboard.
+ * @returns {Promise<SignupActionResult>} Contains validation or provisioning errors when the flow cannot complete.
  */
 export async function signupAction(data: unknown): Promise<SignupActionResult> {
   // Validação dos dados de entrada
@@ -74,9 +83,17 @@ export async function signupAction(data: unknown): Promise<SignupActionResult> {
 }
 
 /**
- * Server Action para logout do usuário.
+ * Invalidates the active Supabase session and clears cached layouts before redirecting to the sign-in screen.
+ *
+ * @example
+ * ```ts
+ * await logoutAction()
+ * ```
+ *
+ * @throws {RedirectType} Always thrown after the session is invalidated to force navigation to `/sign-in`.
+ * @returns {Promise<{ error: string } | void>} Contains an error payload only when Supabase rejects the logout call.
  */
-export async function logoutAction() {
+export async function logoutAction(): Promise<{ error: string } | void> {
   const result = await signOutUser();
   
   if (!result.success) {

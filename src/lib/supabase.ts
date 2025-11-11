@@ -3,16 +3,16 @@ import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ss
 import { cookies } from 'next/headers'
 
 /**
- * Cria cliente Supabase para Server Components e Server Actions
- * 
- * Características:
- * - Usa `next/headers` cookies (assíncrono)
- * - Mantém sessão entre requisições via cookies
- * - Pode ser chamado múltiplas vezes (idempotente)
- * - Sincroniza tokens de ambos os lados (request/response)
- * 
- * Fluxo:
- * Request cookies → Supabase client → Response cookies (para navegador)
+ * Creates a Supabase client scoped to the current server request so authentication can be performed in Server Components and Server Actions.
+ *
+ * @example
+ * ```ts
+ * const supabase = await createServerClient()
+ * const { data } = await supabase.auth.getUser()
+ * ```
+ *
+ * @throws {Error} When required Supabase environment variables are missing.
+ * @returns {Promise<ReturnType<typeof createSupabaseServerClient>>} A request-scoped Supabase client with automatic cookie synchronisation.
  */
 export async function createServerClient() {
   const cookieStore = await cookies()
@@ -46,17 +46,16 @@ export async function createServerClient() {
 }
 
 /**
- * Cria cliente Supabase para Client Components
- * 
- * Características:
- * - Síncrono (sem await)
- * - Gerencia cookies no browser via localStorage/cookies
- * - Use uma instância única (criar uma vez, reutilizar)
- * 
- * Padrão:
- * const supabase = createBrowserClient()  // Top of component
- * 
- * const { data, error } = await supabase.auth.getSession()
+ * Creates a browser-ready Supabase client for React components that run on the client.
+ *
+ * @example
+ * ```ts
+ * const supabase = createBrowserClient()
+ * const { data } = await supabase.auth.getSession()
+ * ```
+ *
+ * @throws {Error} When Supabase credentials are not provided via environment variables.
+ * @returns {ReturnType<typeof createSupabaseBrowserClient>} A Supabase client instance managed in the browser context.
  */
 export function createBrowserClient() {
   return createSupabaseBrowserClient(

@@ -17,6 +17,17 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+/**
+ * Provides a singleton Prisma client so hot reloads do not exhaust database connections.
+ *
+ * @example
+ * ```ts
+ * const users = await prisma.user.findMany({ where: { workspaceId } })
+ * ```
+ *
+ * @throws {Error} When Prisma cannot establish a connection using the current environment variables.
+ * @returns {PrismaClient} A shared Prisma client instance reused across module reloads in development.
+ */
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({

@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeaderBar } from "./AdminHeaderBar";
+import { AiAssistantSidebar } from "@/components/layout/AiAssistantSidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface AdminLayoutClientProps {
   children: React.ReactNode;
@@ -17,6 +20,8 @@ export function AdminLayoutClient({
   userEmail,
   userImage,
 }: AdminLayoutClientProps) {
+  const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
+
   return (
     <SidebarProvider>
       <AdminSidebar
@@ -25,11 +30,18 @@ export function AdminLayoutClient({
         userImage={userImage}
       />
       <SidebarInset>
-        <AdminHeaderBar />
-        <div className="flex flex-1 flex-col gap-4 p-4">
+        <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />
+        <div className="flex flex-1 flex-col overflow-hidden p-6 min-h-0">
           {children}
         </div>
       </SidebarInset>
+
+      {/* AI Assistant Sheet */}
+      <Sheet open={isAiSidebarOpen} onOpenChange={setIsAiSidebarOpen}>
+        <SheetContent>
+          <AiAssistantSidebar />
+        </SheetContent>
+      </Sheet>
     </SidebarProvider>
   );
 }
