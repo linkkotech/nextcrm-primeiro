@@ -20,13 +20,14 @@ const modules = [
   { href: "integrations", label: "Integrações" },
 ];
 
-export default function WorkspaceLayout({
+export default async function WorkspaceLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <div className="flex min-h-screen bg-slate-950 text-white">
       <aside className="hidden w-72 flex-col border-r border-white/10 bg-black/40 p-6 backdrop-blur lg:flex">
@@ -34,13 +35,13 @@ export default function WorkspaceLayout({
           Workspace
         </span>
         <h2 className="mt-2 text-xl font-semibold">
-          {params.workspaceSlug.replaceAll("-", " ")}
+          {workspaceSlug.replaceAll("-", " ")}
         </h2>
         <nav className="mt-8 flex flex-1 flex-col gap-2 text-sm text-white/60">
           {modules.map((module) => (
             <Link
               key={module.href}
-              href={`/app/${params.workspaceSlug}/${module.href}`}
+              href={`/app/${workspaceSlug}/${module.href}`}
               className="rounded-md px-3 py-2 transition hover:bg-white/10 hover:text-white"
             >
               {module.label}

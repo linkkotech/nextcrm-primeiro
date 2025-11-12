@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceReportsPage({
+export default async function WorkspaceReportsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Relatórios"
-      description="Monte dashboards e relatórios customizados alimentados pelos dados do workspace."
+      description="Visualize métricas e dashboards analíticos do seu workspace."
     />
   );
 }

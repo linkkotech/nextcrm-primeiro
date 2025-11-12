@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspacePortfolioPage({
+export default async function WorkspacePortfolioPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Portfolio"
-      description="Gerencie ativos, cases e materiais compartilháveis com prospects e clientes."
+      description="Exiba seus trabalhos, casos de sucesso e projetos em destaque."
     />
   );
 }

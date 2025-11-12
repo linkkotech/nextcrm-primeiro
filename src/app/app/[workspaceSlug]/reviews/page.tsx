@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceReviewsPage({
+export default async function WorkspaceReviewsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Reviews"
-      description="Colete feedbacks e depoimentos dos clientes para alimentar campanhas e insights."
+      description="Colete e gerencie avaliações de clientes e testemunhos."
     />
   );
 }

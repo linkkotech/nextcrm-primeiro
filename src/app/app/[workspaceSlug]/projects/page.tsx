@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceProjectsPage({
+export default async function WorkspaceProjectsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Projects"
-      description="Organize squads, fases e entregáveis vinculados aos clientes e campanhas."
+      description="Gerencie projetos complexos com marcos, entregáveis e colaboração."
     />
   );
 }

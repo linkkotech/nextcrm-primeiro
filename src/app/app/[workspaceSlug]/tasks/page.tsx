@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceTasksPage({
+export default async function WorkspaceTasksPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Tasks"
-      description="Planeje, atribua e monitore tarefas relacionadas a cada cliente com automações."
+      description="Organize tarefas, defina responsáveis e acompanhe prazos."
     />
   );
 }

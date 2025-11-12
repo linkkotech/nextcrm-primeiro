@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceDigitalProfilesPage({
+export default async function WorkspaceDigitalProfilesPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Perfis Digitais"
-      description="Mantenha perfis sociais, reputação e presença digital dos seus clientes monitorados."
+      description="Gerencie cartões de visita digitais personalizados para sua equipe."
     />
   );
 }

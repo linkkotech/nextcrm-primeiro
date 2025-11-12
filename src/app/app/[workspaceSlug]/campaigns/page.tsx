@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceCampaignsPage({
+export default async function WorkspaceCampaignsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Campanhas"
-      description="Planeje e acompanhe campanhas multicanal conectadas a leads e métricas de conversão."
+      description="Crie e monitore campanhas de marketing, e-mail e redes sociais."
     />
   );
 }

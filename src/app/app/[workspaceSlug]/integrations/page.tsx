@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceIntegrationsPage({
+export default async function WorkspaceIntegrationsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Integrações"
-      description="Configure conectores com ferramentas externas para sincronizar dados em tempo real."
+      description="Conecte seu workspace a serviços externos como CRMs, automação de e-mail, e gateways de pagamento."
     />
   );
 }

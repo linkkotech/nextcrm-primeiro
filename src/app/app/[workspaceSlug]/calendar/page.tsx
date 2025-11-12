@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceCalendarPage({
+export default async function WorkspaceCalendarPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Calendar"
-      description="Sincronize reuniões, lembretes e atividades recorrentes com integrações externas."
+      description="Visualize e agende eventos, reuniões e prazos no calendário."
     />
   );
 }

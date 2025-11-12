@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspacePlanningPage({
+export default async function WorkspacePlanningPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Planning"
-      description="Planeje OKRs, metas e roteiros estratégicos conectados às iniciativas do workspace."
+      description="Planeje sprints, recursos e roadmaps de produto."
     />
   );
 }

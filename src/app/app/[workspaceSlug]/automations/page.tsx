@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceAutomationsPage({
+export default async function WorkspaceAutomationsPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Automations"
-      description="Construa fluxos automatizados baseados em gatilhos e dados do CRM para escalar operações."
+      description="Configure fluxos de automação e regras de negócio."
     />
   );
 }

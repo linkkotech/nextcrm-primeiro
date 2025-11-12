@@ -1,13 +1,14 @@
-export default function WorkspaceDashboardPage({
+export default async function WorkspaceDashboardPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <section className="space-y-4">
       <header>
         <h1 className="text-3xl font-semibold text-white">
-          Dashboard · {params.workspaceSlug}
+          Dashboard · {workspaceSlug}
         </h1>
         <p className="text-sm text-white/60">
           Acompanhe indicadores gerais do workspace e principais atividades.

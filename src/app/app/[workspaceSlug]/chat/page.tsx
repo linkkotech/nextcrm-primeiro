@@ -1,15 +1,16 @@
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
-export default function WorkspaceChatPage({
+export default async function WorkspaceChatPage({
   params,
 }: {
-  params: { workspaceSlug: string };
+  params: Promise<{ workspaceSlug: string }>;
 }) {
+  const { workspaceSlug } = await params;
   return (
     <ModulePlaceholder
-      workspaceSlug={params.workspaceSlug}
+      workspaceSlug={workspaceSlug}
       moduleName="Chat"
-      description="Centralize conversas com clientes, bots e time interno em threads acionáveis."
+      description="Converse em tempo real com sua equipe e clientes."
     />
   );
 }
