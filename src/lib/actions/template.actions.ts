@@ -4,6 +4,7 @@ import { createTemplateSchema } from "@/schemas/template.schemas";
 import { getAuthSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import type { Prisma } from "@prisma/client";
 
 export interface CreateTemplateResult {
   success?: boolean;
@@ -115,5 +116,170 @@ export async function createDigitalTemplateAction(
     }
 
     return { error: "Erro ao criar o template. Tente novamente." };
+  }
+}
+
+/**
+ * Deletes a DigitalTemplate from the database.
+ * Only platform admins can delete global templates.
+ * 
+ * @param templateId - ID of the template to delete
+ * @returns {Promise<DeleteTemplateResult>} Success or error message
+ */
+export interface DeleteTemplateResult {
+  success?: boolean;
+  error?: string;
+}
+
+export async function deleteTemplateAction(
+  templateId: string
+): Promise<DeleteTemplateResult> {
+  try {
+    // 1. Autenticação
+    const { user } = await getAuthSession();
+
+    if (!user) {
+      return { error: "Você precisa estar autenticado." };
+    }
+
+    // 2. Verificar permissões (apenas admins)
+    const isAdmin =
+      user.adminRole?.name === "super_admin" ||
+      user.adminRole?.name === "admin";
+
+    if (!isAdmin) {
+      return {
+        error: "Apenas administradores podem remover templates globais.",
+      };
+    }
+
+    // 3. Verificar se template existe e é global
+    const template = await prisma.digitalTemplate.findUnique({
+      where: { id: templateId },
+      select: { id: true, name: true, workspaceId: true },
+    });
+
+    if (!template) {
+      return { error: "Template não encontrado." };
+    }
+
+    if (template.workspaceId !== null) {
+      return {
+        error: "Apenas templates globais podem ser removidos desta área.",
+      };
+    }
+
+    // 4. Deletar
+    await prisma.digitalTemplate.delete({
+      where: { id: templateId },
+    });
+
+    // 5. Revalidar
+    revalidatePath("/admin/digital-templates");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting template:", error);
+
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Erro ao remover o template. Tente novamente." };
+  }
+}
+
+/**
+ * Duplicates an existing DigitalTemplate.
+ * Creates a copy with the same content, type, and description.
+ * Only platform admins can duplicate templates.
+ * 
+ * @param originalTemplateId - ID of the template to duplicate
+ * @returns {Promise<DuplicateTemplateResult>} Success with new template data or error
+ */
+export interface DuplicateTemplateResult {
+  success?: boolean;
+  data?: {
+    id: string;
+    name: string;
+  };
+  error?: string;
+}
+
+export async function duplicateTemplateAction(
+  originalTemplateId: string
+): Promise<DuplicateTemplateResult> {
+  try {
+    // 1. Autenticação
+    const { user } = await getAuthSession();
+
+    if (!user) {
+      return { error: "Você precisa estar autenticado." };
+    }
+
+    // 2. Verificar permissões (apenas admins)
+    const isAdmin =
+      user.adminRole?.name === "super_admin" ||
+      user.adminRole?.name === "admin";
+
+    if (!isAdmin) {
+      return {
+        error: "Apenas administradores podem duplicar templates.",
+      };
+    }
+
+    // 3. Buscar template original
+    const originalTemplate = await prisma.digitalTemplate.findUnique({
+      where: { id: originalTemplateId },
+      select: {
+        name: true,
+        description: true,
+        type: true,
+        content: true,
+        workspaceId: true,
+      },
+    });
+
+    if (!originalTemplate) {
+      return { error: "Template original não encontrado." };
+    }
+
+    // 4. Preparar dados do novo template
+    const newTemplateName = `Cópia de ${originalTemplate.name}`;
+
+    // 5. Criar template duplicado
+    const duplicatedTemplate = await prisma.digitalTemplate.create({
+      data: {
+        name: newTemplateName,
+        description: originalTemplate.description,
+        type: originalTemplate.type,
+        content: originalTemplate.content as Prisma.InputJsonValue,
+        workspaceId: originalTemplate.workspaceId,
+        createdByUserId: user.id,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    // 6. Revalidar página
+    revalidatePath("/admin/digital-templates");
+
+    return {
+      success: true,
+      data: {
+        id: duplicatedTemplate.id,
+        name: duplicatedTemplate.name,
+      },
+    };
+  } catch (error) {
+    console.error("Error duplicating template:", error);
+
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+
+    return { error: "Erro ao duplicar template. Tente novamente." };
   }
 }
