@@ -2,7 +2,11 @@
 
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { ContentBlock } from "./ContentBlock";
+import { HeroBlockEditor } from "@/components/editors/HeroBlockEditor";
+import { updateHeroBlockContent } from "@/lib/actions/heroBlock.actions";
+import type { HeroBlockContent } from "@/schemas/heroBlock.schemas";
 import { Plus } from "lucide-react";
 import {
   DndContext,
@@ -32,6 +36,7 @@ interface Block {
 }
 
 interface BlockListContainerProps {
+  templateId: string;
   heroBlock: Block;
   menuBlock: Block;
   dynamicBlocks: Block[];
@@ -42,6 +47,7 @@ interface BlockListContainerProps {
 }
 
 export function BlockListContainer({
+  templateId,
   heroBlock,
   menuBlock,
   dynamicBlocks,
@@ -50,6 +56,7 @@ export function BlockListContainer({
   onToggleBlock,
   onDeleteBlock,
 }: BlockListContainerProps) {
+  const { toast } = useToast();
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -88,9 +95,28 @@ export function BlockListContainer({
           onToggle={(isActive) => onToggleBlock(heroBlock.id, isActive)}
           icon={heroBlock.icon}
         >
-          <div className="text-sm space-y-2 text-primary-foreground/90">
-            <p>Use este bloco para uma grande imagem de fundo ou apresentação principal.</p>
-          </div>
+          <HeroBlockEditor
+            templateId={templateId}
+            blockData={heroBlock}
+            onSave={async (data: HeroBlockContent) => {
+              const result = await updateHeroBlockContent(templateId, data);
+
+              if (result.success) {
+                toast({
+                  title: "Sucesso!",
+                  description: result.message || "Hero Section atualizada com sucesso!",
+                });
+              } else {
+                toast({
+                  title: "Erro",
+                  description: result.error || "Não foi possível salvar as alterações.",
+                  variant: "destructive",
+                });
+              }
+
+              return result;
+            }}
+          />
         </ContentBlock>
       </Accordion>
 

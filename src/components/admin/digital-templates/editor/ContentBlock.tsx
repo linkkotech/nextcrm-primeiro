@@ -187,7 +187,7 @@ export function ContentBlock({
       <AccordionContent
         className={cn(
           "px-4 py-4",
-          isSpecialBlock ? "bg-primary/90" : "bg-background"
+          isSpecialBlock ? "bg-gray-50" : "bg-background"
         )}
       >
         {children}

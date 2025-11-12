@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { RouteProvider } from "@/components/providers/route-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -32,6 +33,7 @@ export default function RootLayout({
           <ThemeProvider defaultTheme="light" enableSystem>
             {children}
             <Toaster />
+            <ShadcnToaster />
           </ThemeProvider>
         </RouteProvider>
       </body>

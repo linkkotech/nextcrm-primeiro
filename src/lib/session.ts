@@ -214,6 +214,7 @@ export async function getAuthSession() {
         name: true,
         email: true,
         image: true,
+        adminRoleId: true, // Para debugging - verificar se está null no banco
         adminRole: {
           select: {
             id: true,

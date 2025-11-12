@@ -66,7 +66,11 @@ function resolveBlockMeta(blockType: string) {
   return FALLBACK_BLOCK_META;
 }
 
-export function ContentEditor() {
+interface ContentEditorProps {
+  templateId: string;
+}
+
+export function ContentEditor({ templateId }: ContentEditorProps) {
   const [dynamicBlocks, setDynamicBlocks] = useState<Block[]>([]);
   const [isAddBlockSheetOpen, setIsAddBlockSheetOpen] = useState(false);
 
@@ -159,6 +163,7 @@ export function ContentEditor() {
 
       {/* Block List Container */}
       <BlockListContainer
+        templateId={templateId}
         heroBlock={heroBlock}
         menuBlock={menuBlock}
         dynamicBlocks={dynamicBlocks}

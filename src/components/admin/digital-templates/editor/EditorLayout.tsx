@@ -22,7 +22,7 @@ export function EditorLayout({ templateId }: EditorLayoutProps) {
 
         {/* Center Content Editor */}
         <main className="flex-1 overflow-y-auto min-h-0">
-          <ContentEditor />
+          <ContentEditor templateId={templateId} />
         </main>
 
         {/* Right Mobile Preview */}
