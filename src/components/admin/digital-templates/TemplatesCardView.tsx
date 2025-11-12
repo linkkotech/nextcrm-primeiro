@@ -39,11 +39,6 @@ function TemplateCard({ template }: TemplateCardProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <h3 className="text-base font-semibold leading-tight">{template.name}</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              <Badge variant="secondary" className="text-xs">
-                {template.type}
-              </Badge>
-            </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -64,11 +59,20 @@ function TemplateCard({ template }: TemplateCardProps) {
         <p className="text-sm text-muted-foreground flex-1">
           {template.description || "Sem descrição"}
         </p>
+        
+        {/* Preview Image */}
         <div className="bg-muted rounded h-32 flex items-center justify-center text-xs text-muted-foreground">
           Preview (em breve)
         </div>
-        <div className="text-xs text-muted-foreground">
-          Criado em {new Date(template.createdAt).toLocaleDateString("pt-BR")}
+
+        {/* Footer: Data (esquerda) + Tag (direita) */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+          <span className="text-xs text-muted-foreground">
+            Criado em: {new Date(template.createdAt).toLocaleDateString("pt-BR")}
+          </span>
+          <Badge variant="secondary" className="text-xs">
+            {template.type}
+          </Badge>
         </div>
       </CardContent>
     </Card>
