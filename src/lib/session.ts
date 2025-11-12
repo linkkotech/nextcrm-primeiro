@@ -185,6 +185,77 @@ export async function isSuperAdmin(): Promise<boolean> {
 }
 
 /**
+ * Obtains authenticated user session with admin role information for flexible authorization.
+ * Unlike requireAuth, this function does not redirect and returns null for unauthenticated users.
+ * Used in Server Actions where both platform admins and workspace users need different authorization logic.
+ *
+ * @example
+ * ```ts
+ * const session = await getAuthSession()
+ * if (!session.user) return { error: "Não autorizado" }
+ * if (session.user.adminRole?.name === 'super_admin') { // global operation }
+ * ```
+ *
+ * @returns {Promise<{ user: UserWithAdminRole | null }>} User with admin role or null if unauthenticated
+ */
+export async function getAuthSession() {
+  try {
+    const supabaseUser = await getSupabaseUser();
+    
+    if (!supabaseUser) {
+      return { user: null };
+    }
+
+    // Buscar dados do usuário com adminRole incluída
+    const user = await prisma.user.findUnique({
+      where: { supabaseUserId: supabaseUser.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        adminRole: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workspacesOwned: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        workspaceMemberships: {
+          select: {
+            id: true,
+            workspace: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            workspaceRole: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { user };
+  } catch (error) {
+    console.error("Error in getAuthSession():", error);
+    return { user: null };
+  }
+}
+
+/**
  * Extracts authenticated user data and their first workspace for Server Actions requiring user context.
  * Used in admin panel operations where workspace isolation is critical for templates, profiles, etc.
  *
@@ -194,6 +265,7 @@ export async function isSuperAdmin(): Promise<boolean> {
  * ```
  *
  * @throws {RedirectType} When no authenticated user is found, forcing navigation to `/sign-in`.
+ * @throws {Error} When authenticated user has no workspace associated.
  * @returns {Promise<{ userId: string; workspaceId: string }>} User ID and first owned/member workspace ID.
  */
 export async function requireAuthWithWorkspace() {
@@ -204,7 +276,9 @@ export async function requireAuthWithWorkspace() {
   const workspaceId = user.workspacesOwned?.[0]?.id || user.workspaceMemberships?.[0]?.workspace.id;
   
   if (!workspaceId) {
-    throw new Error("Usuário não tem um workspace associado");
+    // EDGE CASE: Usuário autenticado mas sem workspace - common em novos usuários ou admins de plataforma
+    console.error("User has no workspace associated:", user.id);
+    throw new Error("Você precisa estar associado a um workspace para realizar esta ação. Entre em contato com o administrador.");
   }
   
   return {

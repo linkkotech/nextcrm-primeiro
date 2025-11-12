@@ -1,7 +1,7 @@
 "use server";
 
 import { createTemplateSchema } from "@/schemas/template.schemas";
-import { requireAuthWithWorkspace } from "@/lib/session";
+import { getAuthSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -19,6 +19,9 @@ export interface CreateTemplateResult {
 /**
  * Creates a new DigitalTemplate as a Server Action with full validation and authorization checks.
  * Persists to database and revalidates the templates list page for instant UI updates.
+ * 
+ * Platform admins (super_admin, admin) create global templates.
+ * Workspace users create workspace-specific templates (future implementation).
  *
  * @example
  * ```ts
@@ -31,15 +34,18 @@ export interface CreateTemplateResult {
  * ```
  *
  * @param data - Form data from the client (templateName, description, templateType)
- * @throws {RedirectType} When user is not authenticated (redirects to /sign-in)
  * @returns {Promise<CreateTemplateResult>} Success with created template data or error message
  */
 export async function createDigitalTemplateAction(
   data: unknown
 ): Promise<CreateTemplateResult> {
   try {
-    // IMPORTANTE: Validar autenticação e extrair contexto do usuário
-    const { userId } = await requireAuthWithWorkspace();
+    // IMPORTANTE: Obter sessão do usuário sem falhar se não houver workspace
+    const { user } = await getAuthSession();
+
+    if (!user) {
+      return { error: "Você precisa estar autenticado para criar um template." };
+    }
 
     // IMPORTANTE: Validar payload do cliente com schema Zod
     const validatedData = createTemplateSchema.safeParse(data);
@@ -53,6 +59,8 @@ export async function createDigitalTemplateAction(
     const { templateName, description, templateType } = validatedData.data;
 
     // Criar o template com conteúdo inicial vazio
+    // IMPORTANTE: DigitalTemplate não requer workspaceId - templates são globais por padrão
+    // A associação com workspaces é feita através de WorkspaceTemplate (Many-to-Many)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newTemplate = await (prisma as any).digitalTemplate.create({
       data: {
@@ -63,7 +71,7 @@ export async function createDigitalTemplateAction(
           theme: {},
           blocks: [],
         },
-        createdByUserId: userId,
+        createdByUserId: user.id,
       },
       select: {
         id: true,
@@ -86,8 +94,7 @@ export async function createDigitalTemplateAction(
   } catch (error) {
     console.error("Error creating template:", error);
 
-    // EDGE CASE: Erros de autenticação são tratados por requireAuthWithWorkspace (redirect)
-    // Este catch é para outros tipos de erro (ex: constraints do banco)
+    // EDGE CASE: Capturar erros de banco de dados (constraints, etc.)
     if (error instanceof Error) {
       return { error: error.message };
     }
