@@ -184,3 +184,32 @@ export async function isSuperAdmin(): Promise<boolean> {
   return user.adminRole.name === 'super_admin';
 }
 
+/**
+ * Extracts authenticated user data and their first workspace for Server Actions requiring user context.
+ * Used in admin panel operations where workspace isolation is critical for templates, profiles, etc.
+ *
+ * @example
+ * ```ts
+ * const { userId, workspaceId } = await requireAuthWithWorkspace()
+ * ```
+ *
+ * @throws {RedirectType} When no authenticated user is found, forcing navigation to `/sign-in`.
+ * @returns {Promise<{ userId: string; workspaceId: string }>} User ID and first owned/member workspace ID.
+ */
+export async function requireAuthWithWorkspace() {
+  const user = await requireAuth();
+  
+  // IMPORTANTE: Em contexto de admin (criação de templates mestres), usar o primeiro workspace do usuário.
+  // Para operações multi-workspace, passar workspaceId explicitamente via parâmetro.
+  const workspaceId = user.workspacesOwned?.[0]?.id || user.workspaceMemberships?.[0]?.workspace.id;
+  
+  if (!workspaceId) {
+    throw new Error("Usuário não tem um workspace associado");
+  }
+  
+  return {
+    userId: user.id,
+    workspaceId,
+  };
+}
+

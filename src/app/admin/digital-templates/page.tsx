@@ -24,14 +24,15 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { CreateTemplateDialog } from "@/components/admin/digital-templates/CreateTemplateDialog";
 
-// Mock data for digital templates
+// IMPORTANTE: Dados mock temporários até que implementemos o carregamento do banco
+// Em produção, esses serão carregados via getTemplates() Server Action
 const mockTemplates = [
   {
     id: "1",
@@ -330,6 +331,7 @@ function TemplatesListView({ templates }: TemplatesListViewProps) {
 
 export default function DigitalTemplatesPage() {
   const [view, setView] = useState<"card" | "list">("card");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   return (
     <section className="space-y-6">
@@ -357,7 +359,7 @@ export default function DigitalTemplatesPage() {
             </ToggleGroupItem>
           </ToggleGroup>
 
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-4 w-4" />
             Criar Template
           </Button>
@@ -370,6 +372,12 @@ export default function DigitalTemplatesPage() {
       ) : (
         <TemplatesListView templates={mockTemplates} />
       )}
+
+      {/* Create Template Dialog */}
+      <CreateTemplateDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </section>
   );
 }
