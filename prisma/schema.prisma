@@ -8,6 +8,15 @@ datasource db {
 }
 
 // ===================================
+// ENUMS
+// ===================================
+
+enum TemplateType {
+  profile_template
+  content_block
+}
+
+// ===================================
 // MODELOS DE AUTENTICAÇÃO E CORE
 // ===================================
 
@@ -22,6 +31,8 @@ model User {
   adminRole            AdminRole?         @relation(fields: [adminRoleId], references: [id])
   workspacesOwned      Workspace[]        @relation("WorkspaceOwner")
   workspaceMemberships WorkspaceMember[]
+  createdTemplates     DigitalTemplate[]  @relation("TemplateCreator")
+  digitalProfiles      DigitalProfile[]
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 }
@@ -55,18 +66,19 @@ model Workspace {
   stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
 
   // Relações com todos os módulos
-  contacts        Contact[]
-  tasks           Task[]
-  projects        Project[]
-  digitalProfiles DigitalProfile[]
-  campaigns       Campaign[]
-  aiAssistants    AiAssistant[]
-  reports         Report[]
-  portfolios      Portfolio[]
-  events          Event[]
-  automations     Automation[]
-  reviews         Review[]
-  plannings       Planning[]
+  contacts              Contact[]
+  tasks                 Task[]
+  projects              Project[]
+  digitalProfiles       DigitalProfile[]
+  campaigns             Campaign[]
+  aiAssistants          AiAssistant[]
+  reports               Report[]
+  portfolios            Portfolio[]
+  events                Event[]
+  automations           Automation[]
+  reviews               Review[]
+  plannings             Planning[]
+  availableTemplates    WorkspaceTemplate[]
 }
 
 model WorkspaceMember {
@@ -81,6 +93,39 @@ model WorkspaceMember {
   updatedAt       DateTime       @updatedAt
 
   @@unique([userId, workspaceId])
+}
+
+// ===================================
+// MODELOS DE TEMPLATES DIGITAIS
+// ===================================
+
+model DigitalTemplate {
+  id                String               @id @default(cuid())
+  name              String
+  description       String?
+  type              TemplateType
+  content           Json
+  createdByUserId   String
+  createdByUser     User                 @relation("TemplateCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  workspaceAssocs   WorkspaceTemplate[]
+  usedInProfiles    DigitalProfile[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([createdByUserId])
+}
+
+model WorkspaceTemplate {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  templateId  String
+  template    DigitalTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([workspaceId, templateId])
+  @@index([templateId])
 }
 
 // ===================================
@@ -119,12 +164,21 @@ model Project {
 
 // Digital Profiles
 model DigitalProfile {
-  id          String    @id @default(cuid())
-  profileName String
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String           @id @default(cuid())
+  name              String
+  workspaceId       String
+  workspace         Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceTemplateId  String?
+  sourceTemplate    DigitalTemplate? @relation(fields: [sourceTemplateId], references: [id], onDelete: SetNull)
+  content           Json
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([sourceTemplateId])
 }
 
 // Campaigns
