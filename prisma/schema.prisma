@@ -66,19 +66,19 @@ model Workspace {
   stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
 
   // Relações com todos os módulos
-  contacts           Contact[]
-  tasks              Task[]
-  projects           Project[]
-  digitalProfiles    DigitalProfile[]
-  campaigns          Campaign[]
-  aiAssistants       AiAssistant[]
-  reports            Report[]
-  portfolios         Portfolio[]
-  events             Event[]
-  automations        Automation[]
-  reviews            Review[]
-  plannings          Planning[]
-  availableTemplates WorkspaceTemplate[]
+  contacts         Contact[]
+  tasks            Task[]
+  projects         Project[]
+  digitalTemplates DigitalTemplate[]
+  digitalProfiles  DigitalProfile[]
+  campaigns        Campaign[]
+  aiAssistants     AiAssistant[]
+  reports          Report[]
+  portfolios       Portfolio[]
+  events           Event[]
+  automations      Automation[]
+  reviews          Review[]
+  plannings        Planning[]
 }
 
 model WorkspaceMember {
@@ -100,32 +100,21 @@ model WorkspaceMember {
 // ===================================
 
 model DigitalTemplate {
-  id              String              @id @default(cuid())
+  id              String            @id @default(cuid())
   name            String
   description     String?
   type            TemplateType
   content         Json
+  workspaceId     String?           @map("workspace_id")
+  workspace       Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
   createdByUserId String
-  createdByUser   User                @relation("TemplateCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
-  workspaceAssocs WorkspaceTemplate[]
+  createdByUser   User              @relation("TemplateCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   usedInProfiles  DigitalProfile[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@index([createdByUserId])
-}
-
-model WorkspaceTemplate {
-  id          String          @id @default(cuid())
-  workspaceId String
-  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  templateId  String
-  template    DigitalTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-
-  @@unique([workspaceId, templateId])
-  @@index([templateId])
+  @@index([workspaceId])
 }
 
 // ===================================
