@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { RouteProvider } from "@/components/providers/route-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -32,8 +31,7 @@ export default function RootLayout({
         <RouteProvider>
           <ThemeProvider defaultTheme="light" enableSystem>
             {children}
-            <Toaster />
-            <ShadcnToaster />
+            <Toaster richColors position="top-right" closeButton />
           </ThemeProvider>
         </RouteProvider>
       </body>

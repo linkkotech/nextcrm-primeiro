@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, UseFormRegister, Control, UseFormHandleSubmit, FormState, UseFormWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Upload,
@@ -75,57 +75,33 @@ function LabelWithTooltip({
   );
 }
 
+interface HeroBlockEditorProps {
+  blockData: HeroBlock;
+  templateId: string;
+  onSave?: (data: HeroBlockContent) => Promise<void>;
+  register: UseFormRegister<HeroBlockContent>;
+  control: Control<HeroBlockContent>;
+  handleSubmit: UseFormHandleSubmit<HeroBlockContent>;
+  formState: FormState<HeroBlockContent>;
+  watch: UseFormWatch<HeroBlockContent>;
+}
+
 export function HeroBlockEditor({
   blockData,
   templateId,
   onSave,
+  register,
+  control,
+  handleSubmit,
+  formState,
+  watch,
 }: HeroBlockEditorProps) {
-  const {
-    register,
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<HeroBlockContent>({
-    resolver: zodResolver(heroBlockContentSchema),
-    defaultValues: blockData?.content || {
-      userName: '',
-      userInfo: '',
-      phoneNumber: '',
-      emailAddress: '',
-      whatsappNumber: '',
-      scheduleLink: '',
-      scheduleEnabled: false,
-      emailMode: 'mailto',
-      isHeaderEnabled: false,
-      headerLogoWidth: 80,
-      headerMenuEnabled: false,
-      isCTAEnabled: false,
-      styles: {
-        blockBackgroundColor: '#ffffff',
-        blockTitleColor: '#000000',
-        blockSubtitleColor: '#666666',
-        blockTextColor: '#333333',
-        blockLinkColor: '#0066cc',
-        buttonBackgroundColor: '#0066cc',
-        buttonTextColor: '#ffffff',
-        borderWidth: 0,
-        borderColor: '#000000',
-        borderRadius: 'reto',
-        borderStyle: 'solid',
-        boxShadowHOffset: 0,
-        boxShadowVOffset: 0,
-        boxShadowBlur: 0,
-        boxShadowSpread: 0,
-        boxShadowColor: '#000000',
-      },
-    },
-  });
-
   // Watch specific fields for conditional rendering
   const scheduleEnabled = watch('scheduleEnabled');
   const isHeaderEnabled = watch('isHeaderEnabled');
   const isCTAEnabled = watch('isCTAEnabled');
+
+  const { errors, isSubmitting } = formState;
 
   const onSubmit = async (data: HeroBlockContent) => {
     if (!onSave) return;
@@ -419,21 +395,26 @@ export function HeroBlockEditor({
                     label="Largura da Logomarca"
                     tooltip="Defina a largura em pixels (20-200px)"
                   />
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min={20}
-                      max={200}
-                      step={1}
-                      {...register('headerLogoWidth', {
-                        setValueAs: (v) => parseInt(v, 10),
-                      })}
-                      className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                    />
-                    <span className="text-sm font-medium w-12 text-right">
-                      {watch('headerLogoWidth')}px
-                    </span>
-                  </div>
+                  <Controller
+                    name="headerLogoWidth"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min={20}
+                          max={200}
+                          step={1}
+                          value={field.value}
+                          onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                          className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                        <span className="text-sm font-medium w-12 text-right">
+                          {field.value}px
+                        </span>
+                      </div>
+                    )}
+                  />
                 </div>
 
                 {/* Header Menu Toggle */}
@@ -766,21 +747,26 @@ export function HeroBlockEditor({
                       label="Largura da Borda"
                       tooltip="Define a espessura da borda (0-10px)"
                     />
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={0}
-                        max={10}
-                        step={1}
-                        {...register('styles.borderWidth', {
-                          setValueAs: (v) => parseInt(v, 10),
-                        })}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">
-                        {watch('styles.borderWidth')}px
-                      </span>
-                    </div>
+                    <Controller
+                      name="styles.borderWidth"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={0}
+                            max={10}
+                            step={1}
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <span className="text-sm font-medium w-12 text-right">
+                            {field.value}px
+                          </span>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   {/* Border Color */}
@@ -889,21 +875,26 @@ export function HeroBlockEditor({
                       label="Borda H-shadow"
                       tooltip="Posição horizontal da sombra"
                     />
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={-20}
-                        max={20}
-                        step={1}
-                        {...register('styles.boxShadowHOffset', {
-                          setValueAs: (v) => parseInt(v, 10),
-                        })}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">
-                        {watch('styles.boxShadowHOffset')}px
-                      </span>
-                    </div>
+                    <Controller
+                      name="styles.boxShadowHOffset"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={-20}
+                            max={20}
+                            step={1}
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <span className="text-sm font-medium w-12 text-right">
+                            {field.value}px
+                          </span>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   {/* V-shadow */}
@@ -912,21 +903,26 @@ export function HeroBlockEditor({
                       label="Borda V-shadow"
                       tooltip="Posição vertical da sombra"
                     />
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={-20}
-                        max={20}
-                        step={1}
-                        {...register('styles.boxShadowVOffset', {
-                          setValueAs: (v) => parseInt(v, 10),
-                        })}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">
-                        {watch('styles.boxShadowVOffset')}px
-                      </span>
-                    </div>
+                    <Controller
+                      name="styles.boxShadowVOffset"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={-20}
+                            max={20}
+                            step={1}
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <span className="text-sm font-medium w-12 text-right">
+                            {field.value}px
+                          </span>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   {/* Blur */}
@@ -935,21 +931,26 @@ export function HeroBlockEditor({
                       label="Borda Blur"
                       tooltip="Define a intensidade do efeito blur (borrão) da sombra (opcional)"
                     />
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={0}
-                        max={20}
-                        step={1}
-                        {...register('styles.boxShadowBlur', {
-                          setValueAs: (v) => parseInt(v, 10),
-                        })}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">
-                        {watch('styles.boxShadowBlur')}px
-                      </span>
-                    </div>
+                    <Controller
+                      name="styles.boxShadowBlur"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={0}
+                            max={20}
+                            step={1}
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <span className="text-sm font-medium w-12 text-right">
+                            {field.value}px
+                          </span>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   {/* Spread */}
@@ -958,21 +959,26 @@ export function HeroBlockEditor({
                       label="Borda Spread"
                       tooltip="O tamanho da sombra (opcional)"
                     />
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={0}
-                        max={10}
-                        step={1}
-                        {...register('styles.boxShadowSpread', {
-                          setValueAs: (v) => parseInt(v, 10),
-                        })}
-                        className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">
-                        {watch('styles.boxShadowSpread')}px
-                      </span>
-                    </div>
+                    <Controller
+                      name="styles.boxShadowSpread"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="range"
+                            min={0}
+                            max={10}
+                            step={1}
+                            value={field.value}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                            className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                          <span className="text-sm font-medium w-12 text-right">
+                            {field.value}px
+                          </span>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   {/* Shadow Color */}

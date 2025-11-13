@@ -47,7 +47,7 @@ interface BlockListContainerProps {
   onReorderBlocks: (blocks: Block[]) => void;
   onToggleBlock: (id: string, active: boolean) => void;
   onDeleteBlock: (id: string) => void;
-  onFormValuesChange?: (values: HeroBlockContent) => void;
+  onFormValuesChange?: (values: HeroBlockContent) => void; // Nova prop para passar valores ao preview
 }
 
 export function BlockListContainer({
@@ -61,6 +61,7 @@ export function BlockListContainer({
   onDeleteBlock,
   onFormValuesChange,
 }: BlockListContainerProps) {
+  // Inicializar useForm no componente pai
   const {
     register,
     control,
@@ -103,37 +104,14 @@ export function BlockListContainer({
     },
   });
 
+  // Observar mudanças em tempo real
   const watchedValues = watch();
 
-  // ✅ SOLUÇÃO: Debounce e comparação para evitar loop infinito
-  const previousValuesRef = React.useRef<string>("");
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
+  // Notificar pai sobre mudanças (para passar ao preview)
   React.useEffect(() => {
-    if (!onFormValuesChange) return;
-
-    // Limpar timeout anterior
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (onFormValuesChange) {
+      onFormValuesChange(watchedValues);
     }
-
-    // Debounce de 100ms para evitar muitas atualizações
-    timeoutRef.current = setTimeout(() => {
-      const currentSerialized = JSON.stringify(watchedValues);
-      
-      // Só chama callback se valores realmente mudaram
-      if (currentSerialized !== previousValuesRef.current) {
-        previousValuesRef.current = currentSerialized;
-        onFormValuesChange(watchedValues);
-      }
-    }, 100);
-
-    // Cleanup
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
   }, [watchedValues, onFormValuesChange]);
 
   const sensors = useSensors(
@@ -159,6 +137,7 @@ export function BlockListContainer({
 
   const dynamicBlockIds = dynamicBlocks.map((b) => b.id);
 
+  // Estabilizar função de save do Hero Block
   const handleSaveHeroBlock = useCallback(async (data: HeroBlockContent) => {
     const result = await updateHeroBlockContent(templateId, data);
 
@@ -175,24 +154,6 @@ export function BlockListContainer({
     return result;
   }, [templateId]);
 
-  // ✅ SOLUÇÃO: Memoizar as funções de toggle para cada bloco
-  const handleHeroToggle = useCallback((isActive: boolean) => {
-    onToggleBlock(heroBlock.id, isActive);
-  }, [heroBlock.id, onToggleBlock]);
-
-  const handleMenuToggle = useCallback((isActive: boolean) => {
-    onToggleBlock(menuBlock.id, isActive);
-  }, [menuBlock.id, onToggleBlock]);
-
-  // ✅ Para blocos dinâmicos, criar um mapa de funções memoizadas
-  const toggleHandlers = React.useMemo(() => {
-    const handlers: Record<string, (isActive: boolean) => void> = {};
-    dynamicBlocks.forEach(block => {
-      handlers[block.id] = (isActive: boolean) => onToggleBlock(block.id, isActive);
-    });
-    return handlers;
-  }, [dynamicBlocks, onToggleBlock]);
-
   return (
     <div className="space-y-4">
       {/* SEÇÃO 1: Hero Section (Fixo Topo) */}
@@ -205,7 +166,7 @@ export function BlockListContainer({
           clickCount={heroBlock.clickCount}
           isActive={heroBlock.isActive}
           isDraggable={false}
-          onToggle={handleHeroToggle}
+          onToggle={(isActive) => onToggleBlock(heroBlock.id, isActive)}
           icon={heroBlock.icon}
         >
           <HeroBlockEditor
@@ -240,7 +201,7 @@ export function BlockListContainer({
                   clickCount={block.clickCount}
                   isActive={block.isActive}
                   isDraggable={true}
-                  onToggle={toggleHandlers[block.id]}
+                  onToggle={(isActive) => onToggleBlock(block.id, isActive)}
                   onDelete={() => onDeleteBlock(block.id)}
                   icon={block.icon}
                 >
@@ -274,7 +235,7 @@ export function BlockListContainer({
           clickCount={menuBlock.clickCount}
           isActive={menuBlock.isActive}
           isDraggable={false}
-          onToggle={handleMenuToggle}
+          onToggle={(isActive) => onToggleBlock(menuBlock.id, isActive)}
           icon={menuBlock.icon}
         >
           <div className="text-sm space-y-2 text-primary-foreground/90">

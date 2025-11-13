@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,8 @@ interface ContentBlockProps {
   icon: ReactNode;
 }
 
-export function ContentBlock({
+// ✅ Wrapping com React.memo e função de comparação customizada
+export const ContentBlock = memo(function ContentBlock({
   id,
   type,
   title,
@@ -111,7 +112,7 @@ export function ContentBlock({
               <span
                 className={cn(
                   "text-sm font-medium",
-                  isSpecialBlock ? "text-primary-foreground" : "text-foreground"
+                  isSpecialBlock ? "text-white" : "text-foreground"
                 )}
               >
                 {title}
@@ -121,7 +122,7 @@ export function ContentBlock({
                   className={cn(
                     "text-xs",
                     isSpecialBlock
-                      ? "text-primary-foreground/70"
+                      ? "text-white/80"
                       : "text-muted-foreground"
                   )}
                 >
@@ -147,6 +148,7 @@ export function ContentBlock({
             checked={isActive}
             onCheckedChange={onToggle}
             onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
             className="data-[state=checked]:bg-muted data-[state=checked]:border-muted"
           />
 
@@ -194,4 +196,17 @@ export function ContentBlock({
       </AccordionContent>
     </AccordionItem>
   );
-}
+}, (prevProps, nextProps) => {
+  // ✅ Comparação customizada: só re-renderiza se estas props mudarem
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.title === nextProps.title &&
+    prevProps.subtitle === nextProps.subtitle &&
+    prevProps.clickCount === nextProps.clickCount &&
+    prevProps.isDraggable === nextProps.isDraggable &&
+    prevProps.type === nextProps.type
+    // Ignoramos onToggle, onDelete, children e icon na comparação
+    // para evitar re-renders por mudanças de referência
+  );
+});

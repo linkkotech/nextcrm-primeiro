@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Globe, Link2, MapPin, Menu, Music, QrCode, Share2 } from "lucide-react";
 import { BlockListContainer } from "./BlockListContainer";
 import { AddBlockSheet } from "@/components/admin/digital-templates/editor/AddBlockSheet";
+import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
 
 interface Block {
   id: string;
@@ -68,11 +69,17 @@ function resolveBlockMeta(blockType: string) {
 
 interface ContentEditorProps {
   templateId: string;
+  initialContent: any;
+  onHeroValuesChange?: (values: HeroBlockContent) => void;
 }
 
-export function ContentEditor({ templateId }: ContentEditorProps) {
+export function ContentEditor({ templateId, initialContent, onHeroValuesChange }: ContentEditorProps) {
   const [dynamicBlocks, setDynamicBlocks] = useState<Block[]>([]);
   const [isAddBlockSheetOpen, setIsAddBlockSheetOpen] = useState(false);
+  
+  // ✅ SOLUÇÃO: Estado separado para blocos fixos
+  const [heroActive, setHeroActive] = useState(true);
+  const [menuActive, setMenuActive] = useState(true);
 
   const customBlockOptions = useMemo(
     () => [
@@ -82,32 +89,32 @@ export function ContentEditor({ templateId }: ContentEditorProps) {
     []
   );
 
-  // Blocos fixos
-  const heroBlock: Block = {
+  // ✅ Blocos fixos usando estado controlado
+  const heroBlock: Block = useMemo(() => ({
     id: "hero",
     type: "hero",
     title: "Hero Section",
     subtitle: "Este é o bloco Hero inicial do Perfil Digital.",
-    isActive: true,
-    content: {},
+    isActive: heroActive,
+    content: initialContent || {},
     icon: <Music className="h-5 w-5" />,
-  };
+  }), [heroActive, initialContent]);
 
-  const menuBlock: Block = {
+  const menuBlock: Block = useMemo(() => ({
     id: "menu-mobile",
     type: "menu",
     title: "Menu Mobile",
     subtitle: "Este é o bloco do Menu Mobile do seu Perfil Digital.",
-    isActive: true,
+    isActive: menuActive,
     content: {},
     icon: <Menu className="h-5 w-5" />,
-  };
+  }), [menuActive]);
 
-  const handleAddBlockClick = () => {
+  const handleAddBlockClick = useCallback(() => {
     setIsAddBlockSheetOpen(true);
-  };
+  }, []);
 
-  const handleAddBlock = (blockIdentifier: string) => {
+  const handleAddBlock = useCallback((blockIdentifier: string) => {
     const customOption = customBlockOptions.find((option) => option.value === blockIdentifier);
     const meta = customOption
       ? {
@@ -131,26 +138,33 @@ export function ContentEditor({ templateId }: ContentEditorProps) {
     };
     setDynamicBlocks((prev) => [...prev, newBlock]);
     setIsAddBlockSheetOpen(false);
-  };
+  }, [customBlockOptions]);
 
-  const handleDeleteBlock = (id: string) => {
+  const handleDeleteBlock = useCallback((id: string) => {
     setDynamicBlocks((prev) => prev.filter((block) => block.id !== id));
-  };
+  }, []);
 
-  const handleToggleBlock = (id: string, isActive: boolean) => {
-    // Para blocos fixos, não fazemos nada (ou poderia gerenciar estado separado)
-    if (id === "hero" || id === "menu-mobile") {
+  // ✅ SOLUÇÃO: Gerenciar estado dos blocos fixos também
+  const handleToggleBlock = useCallback((id: string, isActive: boolean) => {
+    if (id === "hero") {
+      setHeroActive(isActive);
       return;
     }
     
+    if (id === "menu-mobile") {
+      setMenuActive(isActive);
+      return;
+    }
+    
+    // Para blocos dinâmicos
     setDynamicBlocks((prev) =>
       prev.map((block) => (block.id === id ? { ...block, isActive } : block))
     );
-  };
+  }, []);
 
-  const handleReorderBlocks = (reorderedBlocks: Block[]) => {
+  const handleReorderBlocks = useCallback((reorderedBlocks: Block[]) => {
     setDynamicBlocks(reorderedBlocks);
-  };
+  }, []);
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
@@ -171,6 +185,7 @@ export function ContentEditor({ templateId }: ContentEditorProps) {
         onReorderBlocks={handleReorderBlocks}
         onToggleBlock={handleToggleBlock}
         onDeleteBlock={handleDeleteBlock}
+        onFormValuesChange={onHeroValuesChange}
       />
 
       <AddBlockSheet

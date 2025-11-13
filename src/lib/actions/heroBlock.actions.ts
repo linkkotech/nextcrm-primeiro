@@ -55,7 +55,6 @@ export async function updateHeroBlockContent(
       select: {
         id: true,
         workspaceId: true,
-        userId: true,
       },
     });
 
@@ -66,21 +65,39 @@ export async function updateHeroBlockContent(
       };
     }
 
-    // Step 4: IMPORTANT - Verify user belongs to the template's workspace
+    // Step 4: IMPORTANT - Verify permissions based on user role and template type
     // This prevents data leakage across tenants
-    const workspaceMembership = await prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: template.workspaceId!,
-          userId: session.user.id,
-        },
-      },
-      select: {
-        workspaceRoleId: true,
-      },
-    });
+    
+    // Check if admin is editing a global template (workspaceId is null)
+    const isAdminEditingGlobalTemplate =
+      (session.user?.adminRole?.name === 'super_admin' || 
+       session.user?.adminRole?.name === 'admin') &&
+      template.workspaceId === null;
 
-    if (!workspaceMembership) {
+    if (isAdminEditingGlobalTemplate) {
+      // Admin has permission to edit global templates - proceed to update
+    } else if (template.workspaceId) {
+      // It's a workspace template - verify user belongs to the workspace
+      const workspaceMembership = await prisma.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId: session.user.id,
+            workspaceId: template.workspaceId,
+          },
+        },
+        select: {
+          workspaceRoleId: true,
+        },
+      });
+
+      if (!workspaceMembership) {
+        return {
+          success: false,
+          error: 'Você não tem permissão para editar este template.',
+        };
+      }
+    } else {
+      // Edge case: non-admin user trying to edit a global template
       return {
         success: false,
         error: 'Você não tem permissão para editar este template.',

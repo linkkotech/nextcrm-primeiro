@@ -1,11 +1,14 @@
 "use client";
 
+import { ReactNode } from "react";
+
 interface MobilePreviewProps {
   templateName?: string;
   previewUrl?: string;
+  children?: ReactNode;
 }
 
-export function MobilePreview({ templateName = "Template", previewUrl = "example.com" }: MobilePreviewProps) {
+export function MobilePreview({ templateName = "Template", previewUrl = "example.com", children }: MobilePreviewProps) {
   return (
     <div className="flex h-full w-full flex-col">
       {/* Top Info Bar */}
@@ -38,25 +41,22 @@ export function MobilePreview({ templateName = "Template", previewUrl = "example
               </div>
             </div>
 
-            {/* Hero Section Preview */}
-            <div className="flex flex-1 items-center justify-center border-b-2 border-blue-300/50 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700">
-              <div className="px-4 text-center text-xs text-white">
-                <p className="mb-1 text-sm font-semibold">Hero</p>
-                <p className="text-blue-100">Preview (em breve)</p>
-              </div>
-            </div>
+            {/* Preview Page Structure */}
+            <div className="flex flex-col h-full overflow-y-auto">
+              {/* 1. Hero Section - Topo (altura dinâmica baseada no conteúdo) */}
+              {children}
 
-            {/* Dynamic Content Area */}
-            <div className="flex flex-1 items-center justify-center overflow-y-auto bg-white/10 px-4">
-              <div className="text-center text-xs text-white">
-                <p className="text-white/70">Conteúdo dinâmico</p>
+              {/* 2. Conteúdo Dinâmico - Meio (flex-1 para preencher espaço restante) */}
+              <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600 p-6">
+                <div className="text-center text-white">
+                  <p className="text-sm font-medium">Conteúdo dinâmico</p>
+                  <p className="text-xs text-white/70 mt-1">Blocos adicionais aparecerão aqui</p>
+                </div>
               </div>
-            </div>
 
-            {/* Menu Mobile Preview */}
-            <div className="flex h-16 items-center justify-center gap-2 border-t-2 border-blue-700 bg-blue-800 px-2">
-              <div className="flex h-10 flex-1 items-center justify-center rounded bg-blue-700 text-xs font-semibold text-white">
-                Menu
+              {/* 3. Menu Mobile - Rodapé (altura fixa) */}
+              <div className="h-16 bg-blue-800 border-t-2 border-blue-900 flex items-center justify-center">
+                <span className="text-white text-sm font-semibold">Menu Mobile</span>
               </div>
             </div>
           </div>
