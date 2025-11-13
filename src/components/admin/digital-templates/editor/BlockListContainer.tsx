@@ -70,35 +70,51 @@ export function BlockListContainer({
   } = useForm<HeroBlockContent>({
     resolver: zodResolver(heroBlockContentSchema),
     defaultValues: {
-      userName: heroBlock?.content?.userName || '',
-      userInfo: heroBlock?.content?.userInfo || '',
-      phoneNumber: heroBlock?.content?.phoneNumber || '',
-      emailAddress: heroBlock?.content?.emailAddress || '',
-      whatsappNumber: heroBlock?.content?.whatsappNumber || '',
-      scheduleLink: heroBlock?.content?.scheduleLink || '',
-      scheduleEnabled: heroBlock?.content?.scheduleEnabled || false,
-      emailMode: heroBlock?.content?.emailMode || 'mailto',
-      isHeaderEnabled: heroBlock?.content?.isHeaderEnabled || false,
-      headerLogoWidth: heroBlock?.content?.headerLogoWidth || 80,
-      headerMenuEnabled: heroBlock?.content?.headerMenuEnabled || false,
-      isCTAEnabled: heroBlock?.content?.isCTAEnabled || false,
+      // NEW FIELDS - Visual Refactor
+      destinationUrl: (heroBlock?.content?.destinationUrl as string) || '',
+      openInNewTab: (heroBlock?.content?.openInNewTab as boolean) || false,
+      iconClass: (heroBlock?.content?.iconClass as string) || '',
+      animation: (heroBlock?.content?.animation as 'none' | 'fade' | 'slide' | 'bounce') || 'none',
+      sensitiveContentWarning: (heroBlock?.content?.sensitiveContentWarning as boolean) || false,
+      columns: (heroBlock?.content?.columns as '1' | '2') || '1',
+      // EXISTING FIELDS
+      profileImage: (heroBlock?.content?.profileImage as string) || '',
+      userName: (heroBlock?.content?.userName as string) || '',
+      userInfo: (heroBlock?.content?.userInfo as string) || '',
+      phoneNumber: (heroBlock?.content?.phoneNumber as string) || '',
+      emailAddress: (heroBlock?.content?.emailAddress as string) || '',
+      whatsappNumber: (heroBlock?.content?.whatsappNumber as string) || '',
+      scheduleLink: (heroBlock?.content?.scheduleLink as string) || '',
+      scheduleEnabled: (heroBlock?.content?.scheduleEnabled as boolean) || false,
+      emailMode: (heroBlock?.content?.emailMode as 'mailto' | 'form') || 'mailto',
+      isHeaderEnabled: (heroBlock?.content?.isHeaderEnabled as boolean) || false,
+      headerLogoUrl: (heroBlock?.content?.headerLogoUrl as string) || '',
+      headerLogoImage: (heroBlock?.content?.headerLogoImage as string) || '',
+      headerLogoWidth: (heroBlock?.content?.headerLogoWidth as number) || 80,
+      headerMenuEnabled: (heroBlock?.content?.headerMenuEnabled as boolean) || false,
+      isCTAEnabled: (heroBlock?.content?.isCTAEnabled as boolean) || false,
       styles: {
-        blockBackgroundColor: heroBlock?.content?.styles?.blockBackgroundColor || '#ffffff',
-        blockTitleColor: heroBlock?.content?.styles?.blockTitleColor || '#ffffff',
-        blockSubtitleColor: heroBlock?.content?.styles?.blockSubtitleColor || '#ffffff',
-        blockTextColor: heroBlock?.content?.styles?.blockTextColor || '#ffffff',
-        blockLinkColor: heroBlock?.content?.styles?.blockLinkColor || '#0066cc',
-        buttonBackgroundColor: heroBlock?.content?.styles?.buttonBackgroundColor || '#0066cc',
-        buttonTextColor: heroBlock?.content?.styles?.buttonTextColor || '#ffffff',
-        borderWidth: heroBlock?.content?.styles?.borderWidth || 0,
-        borderColor: heroBlock?.content?.styles?.borderColor || '#000000',
-        borderRadius: heroBlock?.content?.styles?.borderRadius || 'reto',
-        borderStyle: heroBlock?.content?.styles?.borderStyle || 'solid',
-        boxShadowHOffset: heroBlock?.content?.styles?.boxShadowHOffset || 0,
-        boxShadowVOffset: heroBlock?.content?.styles?.boxShadowVOffset || 0,
-        boxShadowBlur: heroBlock?.content?.styles?.boxShadowBlur || 0,
-        boxShadowSpread: heroBlock?.content?.styles?.boxShadowSpread || 0,
-        boxShadowColor: heroBlock?.content?.styles?.boxShadowColor || '#000000',
+        // NEW FIELDS - Colors & Alignment
+        textColor: ((heroBlock?.content as any)?.styles?.textColor as string) || '#000000',
+        textAlignment: ((heroBlock?.content as any)?.styles?.textAlignment as 'center' | 'left' | 'justify' | 'right') || 'center',
+        backgroundColor: ((heroBlock?.content as any)?.styles?.backgroundColor as string) || '#ffffff',
+        // EXISTING FIELDS
+        blockBackgroundColor: ((heroBlock?.content as any)?.styles?.blockBackgroundColor as string) || '#ffffff',
+        blockTitleColor: ((heroBlock?.content as any)?.styles?.blockTitleColor as string) || '#ffffff',
+        blockSubtitleColor: ((heroBlock?.content as any)?.styles?.blockSubtitleColor as string) || '#ffffff',
+        blockTextColor: ((heroBlock?.content as any)?.styles?.blockTextColor as string) || '#ffffff',
+        blockLinkColor: ((heroBlock?.content as any)?.styles?.blockLinkColor as string) || '#0066cc',
+        buttonBackgroundColor: ((heroBlock?.content as any)?.styles?.buttonBackgroundColor as string) || '#0066cc',
+        buttonTextColor: ((heroBlock?.content as any)?.styles?.buttonTextColor as string) || '#ffffff',
+        borderWidth: ((heroBlock?.content as any)?.styles?.borderWidth as number) || 0,
+        borderColor: ((heroBlock?.content as any)?.styles?.borderColor as string) || '#000000',
+        borderRadius: ((heroBlock?.content as any)?.styles?.borderRadius as 'reto' | 'arredondado' | 'redondo') || 'reto',
+        borderStyle: ((heroBlock?.content as any)?.styles?.borderStyle as 'solid' | 'dashed' | 'dotted' | 'hidden') || 'solid',
+        boxShadowHOffset: ((heroBlock?.content as any)?.styles?.boxShadowHOffset as number) || 0,
+        boxShadowVOffset: ((heroBlock?.content as any)?.styles?.boxShadowVOffset as number) || 0,
+        boxShadowBlur: ((heroBlock?.content as any)?.styles?.boxShadowBlur as number) || 0,
+        boxShadowSpread: ((heroBlock?.content as any)?.styles?.boxShadowSpread as number) || 0,
+        boxShadowColor: ((heroBlock?.content as any)?.styles?.boxShadowColor as string) || '#000000',
       },
     },
   });
@@ -215,7 +231,6 @@ export function BlockListContainer({
             control={control}
             handleSubmit={handleSubmit}
             formState={formState}
-            watch={watch}
             onSave={handleSaveHeroBlock}
           />
         </ContentBlock>
