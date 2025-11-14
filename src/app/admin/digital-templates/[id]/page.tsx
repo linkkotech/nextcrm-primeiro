@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { EditorLayout } from "@/components/admin/digital-templates/editor/EditorLayout";
 import { TemplateEditorContainer } from "@/components/admin/digital-templates/editor/TemplateEditorContainer";
 import { notFound } from "next/navigation";
+import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
 
 interface TemplateEditorPageProps {
   params: Promise<{
@@ -29,7 +30,7 @@ export default async function TemplateEditorPage({ params }: TemplateEditorPageP
 
   return (
     <TemplateEditorContainer>
-      <EditorLayout templateId={id} initialContent={template.content} />
+      <EditorLayout templateId={id} initialContent={template.content as HeroBlockContent} />
     </TemplateEditorContainer>
   );
 }

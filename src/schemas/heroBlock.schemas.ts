@@ -5,7 +5,15 @@ import { z } from 'zod';
  * Defines all fields and their validation rules for the Hero Section editor
  */
 export const heroBlockContentSchema = z.object({
-  // Section 1: Informações Principais
+  // Section 1: Destination URL (from reference image)
+  destinationUrl: z
+    .string()
+    .url('URL de destino inválida')
+    .or(z.string().length(0))
+    .optional(),
+  openInNewTab: z.boolean().optional(),
+
+  // Section 2: Informações Principais
   profileImage: z
     .string()
     .url('URL de imagem inválida')
@@ -20,10 +28,16 @@ export const heroBlockContentSchema = z.object({
     .max(500, 'Informações do usuário devem ter no máximo 500 caracteres')
     .optional(),
 
-  // Section 2: Botões de Contato
+  // Section 3: Icon
+  iconClass: z
+    .string()
+    .max(100, 'Classe do ícone deve ter no máximo 100 caracteres')
+    .optional(),
+
+  // Section 4: Botões de Contato
   phoneNumber: z
     .string()
-    .regex(/^\+?[\d\s\-()]+$/, 'Número de telefone inválido')
+    .regex(/^\+?[\d\s\-\(\)]+$/, 'Número de telefone inválido')
     .or(z.string().length(0))
     .optional(),
   emailAddress: z
@@ -33,7 +47,7 @@ export const heroBlockContentSchema = z.object({
     .optional(),
   whatsappNumber: z
     .string()
-    .regex(/^\+?[\d\s\-()]+$/, 'Número de WhatsApp inválido')
+    .regex(/^\+?[\d\s\-\(\)]+$/, 'Número de WhatsApp inválido')
     .or(z.string().length(0))
     .optional(),
   scheduleLink: z
@@ -48,7 +62,20 @@ export const heroBlockContentSchema = z.object({
     })
     .optional(),
 
-  // Section 3: Configurações do Cabeçalho
+  // Section 5: Animation and Columns (from reference image)
+  animation: z
+    .enum(['none', 'fade', 'slide', 'bounce'], {
+      errorMap: () => ({ message: 'Animação inválida' }),
+    })
+    .optional(),
+  sensitiveContentWarning: z.boolean().optional(),
+  columns: z
+    .enum(['1', '2'], {
+      errorMap: () => ({ message: 'Número de colunas inválido' }),
+    })
+    .optional(),
+
+  // Section 6: Configurações do Cabeçalho
   isHeaderEnabled: z.boolean().optional(),
   headerLogoImage: z
     .string()
@@ -73,7 +100,20 @@ export const heroBlockContentSchema = z.object({
   // Section 5: Estilos (cores, bordas, sombras)
   styles: z
     .object({
-      // Block Colors
+      // Block Colors and Alignment
+      textColor: z
+        .string()
+        .regex(/^#[0-9A-F]{6}$/i, 'Cor do texto inválida')
+        .optional(),
+      textAlignment: z
+        .enum(['center', 'left', 'justify', 'right'], {
+          errorMap: () => ({ message: 'Alinhamento inválido' }),
+        })
+        .optional(),
+      backgroundColor: z
+        .string()
+        .regex(/^#[0-9A-F]{6}$/i, 'Cor de fundo inválida')
+        .optional(),
       blockBackgroundColor: z
         .string()
         .regex(/^#[0-9A-F]{6}$/i, 'Cor de fundo inválida')

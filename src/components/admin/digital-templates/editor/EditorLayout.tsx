@@ -8,7 +8,7 @@ import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
 
 interface EditorLayoutProps {
   templateId: string;
-  initialContent: any;
+  initialContent: HeroBlockContent;
 }
 
 export function EditorLayout({ templateId, initialContent }: EditorLayoutProps) {
@@ -32,23 +32,25 @@ export function EditorLayout({ templateId, initialContent }: EditorLayoutProps) 
 
   return (
     <section className="h-full w-full overflow-hidden bg-background">
-      <div className="flex h-full w-full min-h-0">
-        {/* Left Sidebar */}
-        <aside className="w-72 border-r border-border bg-card/30 h-full">
+      <div className="flex h-full w-full">
+        {/* Left Sidebar - Fixa */}
+        <aside className="w-72 border-r border-border bg-card/30 flex-shrink-0">
           <EditorSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         </aside>
 
-        {/* Center Content Editor */}
-        <main className="flex-1 overflow-y-auto min-h-0">
-          <ContentEditor 
-            templateId={templateId} 
-            initialContent={initialContent} 
-            onHeroValuesChange={handleHeroValuesChange}
-          />
+        {/* Center Content Editor - Rolável */}
+        <main className="flex-1 overflow-y-auto min-w-0 min-h-0">
+          <div className="p-8">
+            <ContentEditor 
+              templateId={templateId} 
+              initialContent={initialContent} 
+              onHeroValuesChange={handleHeroValuesChange}
+            />
+          </div>
         </main>
 
-        {/* Right Mobile Preview */}
-        <aside className="w-96 border-l border-border bg-muted/30 px-6 py-6 flex flex-col h-full">
+        {/* Right Mobile Preview - Fixa */}
+        <aside className="w-96 h-full border-l border-border bg-muted/30 overflow-y-auto p-8 flex flex-col flex-shrink-0">
           <MobilePreview templateName="santinho" previewUrl="linqcard.app/santinho">
             <HeroPreview values={heroValues} />
           </MobilePreview>

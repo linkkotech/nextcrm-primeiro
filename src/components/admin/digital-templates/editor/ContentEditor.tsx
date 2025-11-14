@@ -13,7 +13,7 @@ interface Block {
   subtitle: string;
   clickCount?: number;
   isActive: boolean;
-  content: Record<string, unknown>;
+  content: HeroBlockContent | Record<string, unknown>;
   icon: React.ReactNode;
 }
 
@@ -69,7 +69,7 @@ function resolveBlockMeta(blockType: string) {
 
 interface ContentEditorProps {
   templateId: string;
-  initialContent: any;
+  initialContent: HeroBlockContent;
   onHeroValuesChange?: (values: HeroBlockContent) => void;
 }
 
