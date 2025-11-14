@@ -23,13 +23,13 @@ export function AdminLayoutClient({
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-screen min-h-0">
       <AdminSidebar
         userName={userName}
         userEmail={userEmail}
         userImage={userImage}
       />
-      <SidebarInset>
+      <SidebarInset className="overflow-hidden">
         <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />
         <div className="flex flex-1 flex-col overflow-hidden p-6 min-h-0">
           {children}

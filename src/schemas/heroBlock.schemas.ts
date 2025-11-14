@@ -144,6 +144,10 @@ export const heroBlockContentSchema = z.object({
         .string()
         .regex(/^#[0-9A-F]{6}$/i, 'Cor do texto do botão inválida')
         .optional(),
+      buttonIconColor: z
+        .string()
+        .regex(/^#[0-9A-F]{6}$/i, 'Cor inválida')
+        .optional(),
 
       // Border Configuration
       borderWidth: z

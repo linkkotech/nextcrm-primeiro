@@ -29,8 +29,10 @@ export default async function TemplateEditorPage({ params }: TemplateEditorPageP
   }
 
   return (
-    <TemplateEditorContainer>
-      <EditorLayout templateId={id} initialContent={template.content as HeroBlockContent} />
-    </TemplateEditorContainer>
+    <div className="h-screen overflow-hidden -m-6">
+      <TemplateEditorContainer>
+        <EditorLayout templateId={id} initialContent={template.content as HeroBlockContent} />
+      </TemplateEditorContainer>
+    </div>
   );
 }

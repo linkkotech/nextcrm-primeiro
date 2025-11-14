@@ -52,7 +52,7 @@ export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarP
               variant={isActive ? "default" : "ghost"}
               className={cn(
                 "w-full justify-start h-auto py-3 px-3 flex-col items-start",
-                isActive && "bg-primary text-primary-foreground"
+                isActive ? "bg-gray-200 hover:bg-gray-300 text-gray-900" : "hover:bg-gray-200"
               )}
               onClick={() => onSectionChange(item.id as "content" | "design" | "settings" | "advanced")}
             >
@@ -62,7 +62,7 @@ export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarP
               </div>
               <span className={cn(
                 "text-xs w-full",
-                isActive ? "text-primary-foreground/80" : "text-muted-foreground"
+                isActive ? "text-gray-900/80" : "text-muted-foreground"
               )}>
                 {item.description}
               </span>
