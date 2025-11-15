@@ -8,8 +8,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ContentBlock } from "./ContentBlock";
 import { HeroBlockEditor } from "@/components/editors/HeroBlockEditor";
+import { CTAEditor } from "@/components/editors/CTAEditor";
 import { updateHeroBlockContent } from "@/lib/actions/heroBlock.actions";
+import { saveCTABlock, deleteCTABlock } from "@/lib/actions/ctaBlock.actions";
 import { heroBlockContentSchema, type HeroBlockContent } from "@/schemas/heroBlock.schemas";
+import { type CTABlockContent } from "@/schemas/ctaBlock.schemas";
 import { Plus } from "lucide-react";
 import {
   DndContext,
@@ -48,6 +51,7 @@ interface BlockListContainerProps {
   onToggleBlock: (id: string, active: boolean) => void;
   onDeleteBlock: (id: string) => void;
   onFormValuesChange?: (values: HeroBlockContent) => void;
+  onCTAToggle?: (enabled: boolean) => void;
 }
 
 export function BlockListContainer({
@@ -60,6 +64,7 @@ export function BlockListContainer({
   onToggleBlock,
   onDeleteBlock,
   onFormValuesChange,
+  onCTAToggle,
 }: BlockListContainerProps) {
   const {
     register,
@@ -232,6 +237,7 @@ export function BlockListContainer({
             handleSubmit={handleSubmit}
             formState={formState}
             onSave={handleSaveHeroBlock}
+            onCTAToggle={onCTAToggle}
           />
         </ContentBlock>
       </Accordion>
@@ -259,9 +265,27 @@ export function BlockListContainer({
                   onDelete={() => onDeleteBlock(block.id)}
                   icon={block.icon}
                 >
-                  <div className="text-sm text-muted-foreground">
-                    <p>Formulário de edição para {block.type} (em desenvolvimento)</p>
-                  </div>
+                  {block.type === "cta" ? (
+                    <CTAEditor
+                      blockId={block.id}
+                      initialContent={block.content as Partial<CTABlockContent>}
+                      onContentChange={(content) => {
+                        console.log("CTA content changed:", content);
+                      }}
+                      onSave={async (content) => {
+                        const result = await saveCTABlock(templateId, block.id, content);
+                        if (result.success) {
+                          toast.success(result.message || "CTA salvo com sucesso!");
+                        } else {
+                          toast.error(result.error || "Erro ao salvar CTA");
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      <p>Formulário de edição para {block.type} (em desenvolvimento)</p>
+                    </div>
+                  )}
                 </ContentBlock>
               ))}
             </Accordion>
@@ -272,7 +296,7 @@ export function BlockListContainer({
       {/* SEÇÃO 3: Botão Adicionar (Fixo) */}
       <Button
         variant="outline"
-        className="w-full border-dashed border-2 h-[62px] hover:bg-accent rounded-xl"
+        className="w-full border-dashed border-2 h-[62px] hover:bg-input rounded-xl"
         onClick={onAddBlock}
       >
         <Plus className="h-4 w-4 mr-2" />

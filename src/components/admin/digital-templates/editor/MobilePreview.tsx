@@ -1,14 +1,17 @@
 "use client";
 
 import { ReactNode } from "react";
+import { CTAPreview } from "@/components/preview/CTAPreview";
+import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
 
 interface MobilePreviewProps {
   templateName?: string;
   previewUrl?: string;
+  heroValues?: HeroBlockContent;
   children?: ReactNode;
 }
 
-export function MobilePreview({ templateName = "Template", previewUrl = "example.com", children }: MobilePreviewProps) {
+export function MobilePreview({ templateName = "Template", previewUrl = "example.com", heroValues, children }: MobilePreviewProps) {
   return (
     <div className="flex h-full w-full flex-col">
       {/* Top Info Bar */}
@@ -46,7 +49,16 @@ export function MobilePreview({ templateName = "Template", previewUrl = "example
               {/* 1. Hero Section - Topo (altura dinâmica baseada no conteúdo) */}
               {children}
 
-              {/* 2. Conteúdo Dinâmico - Meio (flex-1 para preencher espaço restante) */}
+              {/* 2. CTA Condicional (controlado pelo Hero) */}
+              {heroValues?.isCTAEnabled && (
+                <CTAPreview 
+                  ctaText={heroValues.ctaText}
+                  primaryColor="#FFFF00"
+                  secondaryColor="#FF0000"
+                />
+              )}
+
+              {/* 3. Conteúdo Dinâmico - Meio (flex-1 para preencher espaço restante) */}
               <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600 p-6">
                 <div className="text-center text-white">
                   <p className="text-sm font-medium">Conteúdo dinâmico</p>

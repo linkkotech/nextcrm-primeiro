@@ -1,4 +1,4 @@
-import { GripVertical, MoreHorizontal, Link2 } from "lucide-react";
+import { GripVertical, MoreHorizontal, Link2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -71,18 +71,20 @@ export const ContentBlock = memo(function ContentBlock({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border rounded-xl overflow-hidden",
-        isSpecialBlock ? "bg-primary text-primary-foreground" : "bg-card"
+        "group border rounded-xl overflow-hidden text-foreground",
+        isSpecialBlock ? "bg-input" : "bg-card"
       )}
     >
       {/* Header Container */}
-      <div className="flex w-full items-center justify-between gap-4">
+      <div className={cn(
+        "flex w-full items-center justify-between gap-4 transition-colors",
+        isSpecialBlock ? "hover:bg-input/80" : "hover:bg-accent"
+      )}>
         {/* Accordion Trigger - Grupo Esquerdo (Identidade) */}
         <AccordionTrigger
           className={cn(
-            "flex-1 px-4 py-3 hover:no-underline [&[data-state=open]>svg]:rotate-180",
-            "flex items-center gap-3",
-            isSpecialBlock ? "hover:bg-primary/90" : "hover:bg-accent"
+            "flex-1 px-4 py-3 hover:no-underline",
+            "flex items-center gap-3 [&>svg]:hidden"
           )}
         >
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -101,7 +103,7 @@ export const ContentBlock = memo(function ContentBlock({
             </div>
 
             {/* Ícone Principal com Fundo */}
-            <div className="p-2 rounded-md flex-shrink-0 bg-white shadow-sm">
+            <div className="p-2 rounded-md flex-shrink-0 bg-card shadow-sm border border-border">
               <div className="flex items-center justify-center text-primary">
                 {icon}
               </div>
@@ -112,7 +114,7 @@ export const ContentBlock = memo(function ContentBlock({
               <span
                 className={cn(
                   "text-sm font-medium",
-                  isSpecialBlock ? "text-white" : "text-foreground"
+                  isSpecialBlock ? "text-foreground" : "text-foreground"
                 )}
               >
                 {title}
@@ -122,7 +124,7 @@ export const ContentBlock = memo(function ContentBlock({
                   className={cn(
                     "text-xs",
                     isSpecialBlock
-                      ? "text-white/80"
+                      ? "text-muted-foreground"
                       : "text-muted-foreground"
                   )}
                 >
@@ -161,7 +163,7 @@ export const ContentBlock = memo(function ContentBlock({
                 className={cn(
                   "h-8 w-8",
                   isSpecialBlock
-                    ? "hover:bg-primary-foreground/20"
+                    ? "hover:bg-input/80"
                     : "hover:bg-accent"
                 )}
               >
@@ -183,13 +185,18 @@ export const ContentBlock = memo(function ContentBlock({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Chevron Down - Indicador de Expansão */}
+          <div className="h-8 w-8 flex items-center justify-center pointer-events-none">
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          </div>
         </div>
       </div>
 
       <AccordionContent
         className={cn(
           "px-4 py-4",
-          isSpecialBlock ? "bg-gray-50" : "bg-background"
+          isSpecialBlock ? "bg-muted/30" : "bg-background"
         )}
       >
         {children}

@@ -96,6 +96,7 @@ export const heroBlockContentSchema = z.object({
 
   // Section 4: CTA
   isCTAEnabled: z.boolean().optional(),
+  ctaText: z.string().default("AGENDAR UMA REUNIÃO").optional(),
 
   // Section 5: Estilos (cores, bordas, sombras)
   styles: z

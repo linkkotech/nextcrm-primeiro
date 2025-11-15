@@ -45,9 +45,10 @@ interface HeroBlockEditorProps {
   handleSubmit: (onSubmit: (data: HeroBlockContent) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   formState: FormState<HeroBlockContent>;
   onSave: (data: HeroBlockContent) => void;
+  onCTAToggle?: (enabled: boolean) => void;
 }
 
-export function HeroBlockEditor({ templateId, blockData, register, control, handleSubmit, formState, onSave }: HeroBlockEditorProps) {
+export function HeroBlockEditor({ templateId, blockData, register, control, handleSubmit, formState, onSave, onCTAToggle }: HeroBlockEditorProps) {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [headerLogoPreview, setHeaderLogoPreview] = useState<string>('');
   const [isProfileCropOpen, setProfileCropOpen] = useState(false);
@@ -101,7 +102,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
             
             {/* Profile Preview - Circular */}
             <div className="flex justify-center">
-              <div className="relative h-24 w-24 rounded-full bg-gray-50 border-2 border-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="relative h-24 w-24 rounded-full bg-muted border-2 border-border flex items-center justify-center overflow-hidden">
                 {imagePreview || profileImageUrl ? (
                   <img
                     src={imagePreview || profileImageUrl || ''}
@@ -109,7 +110,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <ImageIcon className="h-10 w-10 text-gray-300" />
+                  <ImageIcon className="h-10 w-10 text-muted-foreground/50" />
                 )}
               </div>
             </div>
@@ -117,13 +118,13 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
             {/* Drop Zone for Upload */}
             <div 
               onClick={() => profileFileInputRef.current?.click()}
-              className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+              className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition"
             >
-              <Upload className="h-6 w-6 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600">
+              <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+              <p className="text-sm text-foreground">
                 Clique ou arraste uma imagem
               </p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 PNG, JPG ou GIF
               </p>
             </div>
@@ -279,7 +280,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
               {/* Logo Preview - 200x50px */}
               <div className="space-y-2">
                 <Label>Preview da Logo</Label>
-                <div className="w-full h-[50px] bg-gray-50 border-2 border-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="w-full h-[50px] bg-muted border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
                   {headerLogoPreview || headerLogoUrl ? (
                     <img
                       src={headerLogoPreview || headerLogoUrl || ''}
@@ -288,7 +289,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
                       style={{ maxWidth: `${headerLogoWidth || 100}px` }}
                     />
                   ) : (
-                    <span className="text-sm text-gray-400">Logo do Header (200x50px)</span>
+                    <span className="text-sm text-muted-foreground">Logo do Header (200x50px)</span>
                   )}
                 </div>
               </div>
@@ -314,13 +315,13 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
                 
                 <div 
                   onClick={() => headerFileInputRef.current?.click()}
-                  className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+                  className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition"
                 >
-                  <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">
+                  <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                  <p className="text-sm text-foreground">
                     Clique ou arraste uma imagem
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     PNG, JPG ou GIF
                   </p>
                 </div>
@@ -339,7 +340,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
                       max="200"
                       value={field.value || 100}
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
-                      className="w-full accent-gray-300"
+                      className="w-full accent-primary"
                       style={{
                         border: 'none',
                         borderRight: '4px solid #d1d5db',
@@ -362,7 +363,10 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
             render={({ field }) => (
               <Switch
                 checked={field.value || false}
-                onCheckedChange={field.onChange}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                  onCTAToggle?.(checked);
+                }}
               />
             )}
           />
@@ -376,7 +380,8 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                O botão Call to Action será exibido no bloco Hero. Configure as cores e texto nas seções de estilo abaixo.
+                O botão Call to Action está ativo e será exibido logo abaixo do Hero. 
+                Para editar o texto, URL e cores, acesse o card <strong>CTA (Call to Action)</strong> na lista de blocos.
               </p>
             </CardContent>
           </Card>
@@ -385,10 +390,10 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
 
       {/* Configurações de Cores */}
       <Accordion type="multiple" className="w-full space-y-2">
-        <AccordionItem value="block-colors" className="border bg-gray-100 rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline py-0 h-10">
+        <AccordionItem value="block-colors" className="border bg-secondary rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline hover:bg-secondary/80 transition-colors py-0 h-10">
             <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-black rounded"></div>
+              <div className="w-4 h-4 bg-primary rounded"></div>
               <span className="font-medium">Configurações de Cores do Bloco</span>
             </div>
           </AccordionTrigger>
@@ -481,10 +486,10 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
           </AccordionContent>
         </AccordionItem>
         
-        <AccordionItem value="button-colors" className="border bg-gray-100 rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline py-0 h-10">
+        <AccordionItem value="button-colors" className="border bg-secondary rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline hover:bg-secondary/80 transition-colors py-0 h-10">
             <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-black rounded"></div>
+              <div className="w-4 h-4 bg-primary rounded"></div>
               <span className="font-medium">Configuração de Cores dos Botões</span>
             </div>
           </AccordionTrigger>

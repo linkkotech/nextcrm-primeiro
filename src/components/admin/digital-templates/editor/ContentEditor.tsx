@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
-import { Globe, Link2, MapPin, Menu, Music, QrCode, Share2 } from "lucide-react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Globe, Link2, MapPin, Megaphone, Menu, Music, QrCode, Share2 } from "lucide-react";
 import { BlockListContainer } from "./BlockListContainer";
 import { AddBlockSheet } from "@/components/admin/digital-templates/editor/AddBlockSheet";
 import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
@@ -17,13 +17,18 @@ interface Block {
   icon: React.ReactNode;
 }
 
-type BlockType = "link" | "website" | "social" | "address" | "qr";
+type BlockType = "link" | "cta" | "website" | "social" | "address" | "qr";
 
 const BLOCK_TYPE_CONFIG: Record<BlockType, { title: string; subtitle: string; icon: () => React.ReactNode }> = {
   link: {
     title: "Link Externo",
     subtitle: "Nenhuma URL definida",
     icon: () => <Link2 className="h-5 w-5" />,
+  },
+  cta: {
+    title: "CTA (Call to Action)",
+    subtitle: "Link Externo",
+    icon: () => <Megaphone className="h-5 w-5" />,
   },
   website: {
     title: "Website",
@@ -76,6 +81,26 @@ interface ContentEditorProps {
 export function ContentEditor({ templateId, initialContent, onHeroValuesChange }: ContentEditorProps) {
   const [dynamicBlocks, setDynamicBlocks] = useState<Block[]>([]);
   const [isAddBlockSheetOpen, setIsAddBlockSheetOpen] = useState(false);
+
+  // Carregar blocos dinâmicos do banco de dados
+  useEffect(() => {
+    const content = initialContent as any;
+    if (content?.dynamicBlocks && Array.isArray(content.dynamicBlocks)) {
+      const loadedBlocks: Block[] = content.dynamicBlocks.map((dbBlock: any) => {
+        const meta = resolveBlockMeta(dbBlock.type);
+        return {
+          id: dbBlock.id,
+          type: dbBlock.type,
+          title: meta.title,
+          subtitle: meta.subtitle,
+          isActive: dbBlock.isActive ?? true,
+          content: dbBlock.content || {},
+          icon: meta.icon(),
+        };
+      });
+      setDynamicBlocks(loadedBlocks);
+    }
+  }, [initialContent]);
   
   // ✅ SOLUÇÃO: Estado separado para blocos fixos
   const [heroActive, setHeroActive] = useState(true);
@@ -140,9 +165,53 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
     setIsAddBlockSheetOpen(false);
   }, [customBlockOptions]);
 
-  const handleDeleteBlock = useCallback((id: string) => {
+  const handleCTAToggle = useCallback((enabled: boolean) => {
+    if (enabled) {
+      // Verificar se já existe um bloco CTA
+      const ctaExists = dynamicBlocks.some(block => block.type === 'cta');
+      if (!ctaExists) {
+        const meta = resolveBlockMeta('cta');
+        const newCTABlock: Block = {
+          id: generateId(),
+          type: 'cta',
+          title: meta.title,
+          subtitle: meta.subtitle,
+          isActive: true,
+          content: {
+            ctaText: 'AGENDAR UMA REUNIÃO',
+            destinationUrl: '',
+            primaryColor: '#FFFF00',
+            secondaryColor: '#FF0000',
+          },
+          icon: meta.icon(),
+        };
+        setDynamicBlocks((prev) => [newCTABlock, ...prev]);
+      }
+    } else {
+      // Remover bloco CTA se existir
+      setDynamicBlocks((prev) => prev.filter(block => block.type !== 'cta'));
+    }
+  }, [dynamicBlocks]);
+
+  const handleDeleteBlock = useCallback(async (id: string) => {
+    // Encontrar o bloco para verificar se é CTA
+    const blockToDelete = dynamicBlocks.find(block => block.id === id);
+    
+    if (blockToDelete?.type === 'cta') {
+      // Deletar do banco de dados
+      const { deleteCTABlock } = await import('@/lib/actions/ctaBlock.actions');
+      const result = await deleteCTABlock(templateId, id);
+      
+      if (!result.success) {
+        const { toast } = await import('sonner');
+        toast.error(result.error || 'Erro ao deletar CTA');
+        return;
+      }
+    }
+    
+    // Remover do estado local
     setDynamicBlocks((prev) => prev.filter((block) => block.id !== id));
-  }, []);
+  }, [dynamicBlocks, templateId]);
 
   // ✅ SOLUÇÃO: Gerenciar estado dos blocos fixos também
   const handleToggleBlock = useCallback((id: string, isActive: boolean) => {
@@ -168,11 +237,9 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      {/* Back Button */}
-      <div className="flex items-center justify-between mb-6">
-        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          ← Voltar
-        </button>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-sm font-semibold text-muted-foreground">BLOCOS</h2>
       </div>
 
       {/* Block List Container */}
@@ -186,6 +253,7 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
         onToggleBlock={handleToggleBlock}
         onDeleteBlock={handleDeleteBlock}
         onFormValuesChange={onHeroValuesChange}
+        onCTAToggle={handleCTAToggle}
       />
 
       <AddBlockSheet

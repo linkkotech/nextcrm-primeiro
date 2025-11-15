@@ -36,7 +36,7 @@ const menuItems = [
 
 export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarProps) {
   return (
-    <div className="p-4 space-y-2">
+    <div className="py-6 px-4 space-y-2">
       <div className="mb-6">
         <h2 className="text-sm font-semibold text-muted-foreground">EDITOR</h2>
       </div>
@@ -49,10 +49,10 @@ export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarP
           return (
             <Button
               key={item.id}
-              variant={isActive ? "default" : "ghost"}
+              variant="ghost"
               className={cn(
                 "w-full justify-start h-auto py-3 px-3 flex-col items-start",
-                isActive ? "bg-gray-200 hover:bg-gray-300 text-gray-900" : "hover:bg-gray-200"
+                isActive ? "bg-muted hover:bg-muted/80 text-foreground" : "hover:bg-muted"
               )}
               onClick={() => onSectionChange(item.id as "content" | "design" | "settings" | "advanced")}
             >
@@ -62,7 +62,7 @@ export function EditorSidebar({ activeSection, onSectionChange }: EditorSidebarP
               </div>
               <span className={cn(
                 "text-xs w-full",
-                isActive ? "text-gray-900/80" : "text-muted-foreground"
+                isActive ? "text-foreground/80" : "text-muted-foreground"
               )}>
                 {item.description}
               </span>

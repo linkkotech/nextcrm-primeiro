@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Globe, Info, Link2, MapPin, QrCode, Share2 } from "lucide-react";
+import { Globe, Info, Link2, MapPin, Megaphone, QrCode, Share2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -28,6 +28,12 @@ const BLOCK_OPTIONS = [
     title: "Link",
     description: "Direcione para páginas externas ou campanhas.",
     icon: <Link2 className="h-5 w-5" />,
+  },
+  {
+    value: "cta",
+    title: "CTA (Call to Action)",
+    description: "Botão de chamada para ação com design destacado em camadas.",
+    icon: <Megaphone className="h-5 w-5" />,
   },
   {
     value: "website",
@@ -105,7 +111,7 @@ export function AddBlockSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className="w-full sm:max-w-md flex flex-col">
         <SheetHeader>
           <SheetTitle>Tipos de Conteúdo</SheetTitle>
           <SheetDescription>
@@ -113,7 +119,7 @@ export function AddBlockSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-6 py-6">
+        <div className="flex-1 overflow-y-auto space-y-6 py-6 pr-2">
           <Alert className="border-primary/20 bg-primary/5 text-primary">
             <Info className="h-4 w-4" />
             <AlertTitle>Personalize depois</AlertTitle>
@@ -181,7 +187,7 @@ export function AddBlockSheet({
           </div>
         </div>
 
-        <SheetFooter className="flex flex-row gap-2 sm:space-x-0">
+        <SheetFooter className="flex flex-row gap-2 sm:space-x-0 pt-4 border-t">
           <Button variant="outline" className="flex-1" onClick={handleCancel}>
             Cancelar
           </Button>

@@ -6,15 +6,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  ImageCrop,
-  ImageCropApply,
-  ImageCropReset,
-} from '@/components/kibo-ui/image-crop';
 import ReactCrop, { type PercentCrop, type PixelCrop } from 'react-image-crop';
 import type { SyntheticEvent, CSSProperties } from 'react';
 
@@ -33,19 +26,16 @@ interface CustomImageCropContentRef {
   applyCrop: () => Promise<void>;
 }
 
-// Componente customizado que aplica zoom com transform-origin dinâmico
 const CustomImageCropContent = forwardRef<CustomImageCropContentRef, { 
-  zoom: number;
   aspect?: number;
   circularCrop?: boolean;
   file: File;
   onCropComplete: (croppedImage: string) => void;
-}>(({ zoom, aspect, circularCrop, file, onCropComplete }, ref) => {
+}>(({ aspect, circularCrop, file, onCropComplete }, ref) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [imgSrc, setImgSrc] = useState<string>('');
   const [crop, setCrop] = useState<PercentCrop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
-  const [transformOrigin, setTransformOrigin] = useState<string>('center');
 
   useEffect(() => {
     const reader = new FileReader();
@@ -61,46 +51,39 @@ const CustomImageCropContent = forwardRef<CustomImageCropContentRef, {
     let centerCrop: PercentCrop;
     
     if (aspect === 1) {
-      // Para crop circular (aspect 1:1), usar a menor dimensão para garantir círculo perfeito
+      // Para crop circular, sempre usar a menor dimensão como referência
+      // Isso garante um círculo perfeito independente da proporção da imagem
       const minDimension = Math.min(width, height);
-      const cropSize = (minDimension / Math.max(width, height)) * 90; // 90% da menor dimensão
+      const cropSizeInPixels = minDimension * 0.6; // 60% da menor dimensão
+      
+      // Converter para porcentagem baseado na largura e altura reais
+      const cropWidthPercent = (cropSizeInPixels / width) * 100;
+      const cropHeightPercent = (cropSizeInPixels / height) * 100;
       
       centerCrop = {
         unit: '%',
-        width: width <= height ? 90 : cropSize,
-        height: height <= width ? 90 : cropSize,
-        x: width <= height ? 5 : (100 - cropSize) / 2,
-        y: height <= width ? 5 : (100 - cropSize) / 2,
+        width: cropWidthPercent,
+        height: cropHeightPercent,
+        x: (100 - cropWidthPercent) / 2,
+        y: (100 - cropHeightPercent) / 2,
       };
     } else if (aspect) {
-      // Para outros aspectos, usar cálculo original
       centerCrop = {
         unit: '%',
-        width: 90,
-        height: (90 / aspect),
-        x: 5,
-        y: 5 + ((90 - (90 / aspect)) / 2),
+        width: 60,
+        height: (60 / aspect),
+        x: 20,
+        y: 20 + ((60 - (60 / aspect)) / 2),
       };
     } else {
-      // Sem aspect definido
-      centerCrop = { unit: '%', width: 90, height: 90, x: 5, y: 5 };
+      centerCrop = { unit: '%', width: 60, height: 60, x: 20, y: 20 };
     }
     
     setCrop(centerCrop);
-    
-    // Atualizar transform-origin para o centro do crop inicial
-    const originX = centerCrop.x + (centerCrop.width / 2);
-    const originY = centerCrop.y + (centerCrop.height / 2);
-    setTransformOrigin(`${originX}% ${originY}%`);
   }, [aspect]);
 
   const handleChange = useCallback((pixelCrop: PixelCrop, percentCrop: PercentCrop) => {
     setCrop(percentCrop);
-    
-    // Calcular transform-origin baseado no centro do crop
-    const originX = percentCrop.x + (percentCrop.width / 2);
-    const originY = percentCrop.y + (percentCrop.height / 2);
-    setTransformOrigin(`${originX}% ${originY}%`);
   }, []);
 
   const handleComplete = useCallback((pixelCrop: PixelCrop) => {
@@ -119,12 +102,8 @@ const CustomImageCropContent = forwardRef<CustomImageCropContentRef, {
       throw new Error('No 2d context');
     }
 
-    // Usar offsetWidth/offsetHeight que não são afetados pelo transform
-    const displayWidth = imgRef.current.offsetWidth;
-    const displayHeight = imgRef.current.offsetHeight;
-    
-    const scaleX = imgRef.current.naturalWidth / displayWidth;
-    const scaleY = imgRef.current.naturalHeight / displayHeight;
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
 
     canvas.width = completedCrop.width * scaleX;
     canvas.height = completedCrop.height * scaleY;
@@ -149,36 +128,37 @@ const CustomImageCropContent = forwardRef<CustomImageCropContentRef, {
     applyCrop,
   }));
 
-  const shadcnStyle = {
-    '--rc-border-color': 'var(--color-border)',
-    '--rc-focus-color': 'var(--color-primary)',
+  const customStyle = {
+    '--rc-border-color': 'hsl(204, 94.5%, 54%)',
+    '--rc-focus-color': 'hsl(204, 94.5%, 54%)',
   } as CSSProperties;
 
   return (
-    <ReactCrop
-      className="max-h-96 max-w-full"
-      crop={crop}
-      onChange={handleChange}
-      onComplete={handleComplete}
-      style={shadcnStyle}
-      aspect={aspect}
-      circularCrop={circularCrop}
-    >
-      {imgSrc && (
-        <img
-          alt="crop"
-          className="size-full"
-          onLoad={onImageLoad}
-          ref={imgRef}
-          src={imgSrc}
-          style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: transformOrigin,
-            transition: 'transform 0.2s ease-out',
-          }}
-        />
-      )}
-    </ReactCrop>
+    <div className="relative flex items-center justify-center w-full h-[500px] bg-[repeating-conic-gradient(#e5e5e5_0%_25%,transparent_0%_50%)_50%_50%/20px_20px] rounded-lg overflow-hidden">
+      <ReactCrop
+        className="max-w-full max-h-full"
+        crop={crop}
+        onChange={handleChange}
+        onComplete={handleComplete}
+        style={customStyle}
+        aspect={circularCrop ? 1 : aspect}
+        circularCrop={circularCrop}
+        ruleOfThirds
+      >
+        {imgSrc && (
+          <img
+            alt="crop"
+            className="max-h-[500px] w-auto"
+            onLoad={onImageLoad}
+            ref={imgRef}
+            src={imgSrc}
+            style={{
+              display: 'block',
+            }}
+          />
+        )}
+      </ReactCrop>
+    </div>
   );
 });
 
@@ -193,16 +173,12 @@ export function ImageCropDialog({
   circularCrop = false,
 }: ImageCropDialogProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [zoom, setZoom] = useState<number>(1);
-  const [isCropApplied, setIsCropApplied] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cropRef = useRef<CustomImageCropContentRef>(null);
 
-  // Load external file if provided
   useEffect(() => {
     if (externalFile) {
       setFile(externalFile);
-      setIsCropApplied(false);
     }
   }, [externalFile]);
 
@@ -215,25 +191,28 @@ export function ImageCropDialog({
 
   const handleClose = () => {
     setFile(null);
-    setZoom(1);
-    setIsCropApplied(false);
     onClose();
   };
 
   const handleCropComplete = (croppedImage: string) => {
     onSave(croppedImage);
     setFile(null);
-    setZoom(1);
-    setIsCropApplied(false);
     onClose();
   };
 
-  const handleApplyCrop = () => {
-    // Apenas marca que o crop foi aplicado, forçando re-render do completedCrop
-    setIsCropApplied(true);
+  const handleContinueWithoutCrop = () => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        onSave(reader.result as string);
+        setFile(null);
+        onClose();
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleSave = async () => {
+  const handleCropSelection = async () => {
     if (cropRef.current) {
       await cropRef.current.applyCrop();
     }
@@ -241,18 +220,18 @@ export function ImageCropDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={circularCrop ? "max-w-xl" : "max-w-3xl"}>
-        <DialogHeader>
+      <DialogContent className="max-w-4xl p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle>Recortar Imagem</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="px-6 pb-6">
           {!file ? (
             <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+              <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">
                   <svg
-                    className="w-8 h-8 text-gray-400 mb-2"
+                    className="w-10 h-10 text-gray-400 mb-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -264,10 +243,10 @@ export function ImageCropDialog({
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600 text-center">
+                  <p className="text-sm text-gray-600 text-center font-medium">
                     Clique para selecionar uma imagem
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-2">
                     PNG, JPG ou GIF (máx. 5MB)
                   </p>
                 </div>
@@ -282,70 +261,75 @@ export function ImageCropDialog({
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Zoom Slider */}
-              <div className="space-y-2">
-                <Label htmlFor="zoom-slider" className="text-sm font-medium">
-                  Zoom: {zoom.toFixed(1)}x
-                </Label>
-                <input
-                  id="zoom-slider"
-                  type="range"
-                  min="0.5"
-                  max="3"
-                  step="0.1"
-                  value={zoom}
-                  onChange={(e) => setZoom(parseFloat(e.target.value))}
-                  className="w-full accent-blue-600"
-                />
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 overflow-hidden">
-                <CustomImageCropContent 
-                  ref={cropRef}
-                  zoom={zoom}
-                  aspect={aspect}
-                  circularCrop={circularCrop}
-                  file={file}
-                  onCropComplete={handleCropComplete}
-                />
-              </div>
+              <CustomImageCropContent 
+                ref={cropRef}
+                aspect={aspect}
+                circularCrop={circularCrop}
+                file={file}
+                onCropComplete={handleCropComplete}
+              />
               
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleApplyCrop}
-                  >
-                    Aplicar Recorte
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setZoom(1)}
-                  >
-                    Reset Zoom
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleClose}>
-                    Cancelar
-                  </Button>
-                  <Button 
-                    className="bg-blue-600 hover:bg-blue-700"
-                    onClick={handleSave}
-                    disabled={!isCropApplied}
-                  >
-                    Salvar
-                  </Button>
-                </div>
+              <div className="flex justify-end items-center gap-2 pt-2">
+                <Button 
+                  variant="secondary"
+                  onClick={handleContinueWithoutCrop}
+                >
+                  Continue sem recortar
+                </Button>
+                <Button 
+                  onClick={handleCropSelection}
+                >
+                  Recortar seleção
+                </Button>
               </div>
             </div>
           )}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Exemplo de uso
+export default function App() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h1 className="text-2xl font-bold mb-4">Image Crop Dialog</h1>
+          <p className="text-gray-600 mb-6">
+            Clique no botão abaixo para abrir o dialog de crop com imagem fixa
+          </p>
+          
+          <Button 
+            onClick={() => setIsOpen(true)}
+          >
+            Abrir Dialog de Crop
+          </Button>
+        </div>
+
+        {croppedImage && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">Imagem Recortada</h2>
+            <img 
+              src={croppedImage} 
+              alt="Cropped" 
+              className="max-w-full rounded-lg border"
+            />
+          </div>
+        )}
+
+        <ImageCropDialog
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          onSave={(dataUrl) => setCroppedImage(dataUrl)}
+          aspect={1}
+          circularCrop={true}
+        />
+      </div>
+    </div>
   );
 }

@@ -2,6 +2,9 @@
 import { useState, useCallback, useRef } from "react";
 import { EditorSidebar } from "./EditorSidebar";
 import { ContentEditor } from "./ContentEditor";
+import { DesignEditor } from "@/components/editors/DesignEditor";
+import { SettingsEditor } from "@/components/editors/SettingsEditor";
+import { AdvancedEditor } from "@/components/editors/AdvancedEditor";
 import { MobilePreview } from "./MobilePreview";
 import { HeroPreview } from "@/components/preview/HeroPreview";
 import { HeroBlockContent } from "@/schemas/heroBlock.schemas";
@@ -39,19 +42,36 @@ export function EditorLayout({ templateId, initialContent }: EditorLayoutProps) 
 
       {/* Center Content Editor - Rolável */}
       <main className="flex-1 h-full overflow-y-auto">
-        <div className="p-8">
+        {activeSection === "content" && (
           <ContentEditor 
             templateId={templateId} 
             initialContent={initialContent} 
             onHeroValuesChange={handleHeroValuesChange}
           />
-        </div>
+        )}
+        {activeSection === "design" && (
+          <DesignEditor templateId={templateId} />
+        )}
+        {activeSection === "settings" && (
+          <SettingsEditor templateId={templateId} />
+        )}
+        {activeSection === "advanced" && (
+          <AdvancedEditor 
+            templateId={templateId}
+            templateName="Meu Template"
+            linkedClientsCount={0}
+          />
+        )}
       </main>
 
       {/* Right Mobile Preview - Fixa */}
       <aside className="w-96 h-full flex-shrink-0 overflow-hidden border-l border-border bg-muted/30">
         <div className="p-8">
-          <MobilePreview templateName="santinho" previewUrl="linqcard.app/santinho">
+          <MobilePreview 
+            templateName="santinho" 
+            previewUrl="linqcard.app/santinho"
+            heroValues={heroValues}
+          >
             <HeroPreview values={heroValues} />
           </MobilePreview>
         </div>
