@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 
 interface ColorPickerNativeProps {
@@ -13,20 +14,37 @@ export function ColorPickerNative({
   onChange,
   placeholder = "#000000",
 }: ColorPickerNativeProps) {
+  const [internalColor, setInternalColor] = useState(value);
+
+  useEffect(() => {
+    setInternalColor(value);
+  }, [value]);
+
+  const handleColorChange = (newValue: string) => {
+    setInternalColor(newValue);
+    onChange(newValue);
+  };
+
   return (
     <div className="flex items-center gap-2">
-      <input
-        type="color"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 rounded border border-border cursor-pointer"
-      />
+      <div
+        className="relative w-10 h-10 rounded border border-input cursor-pointer"
+        style={{ backgroundColor: internalColor || placeholder }}
+      >
+        <input
+          type="color"
+          value={internalColor || placeholder}
+          onChange={(e) => handleColorChange(e.target.value)}
+          className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+        />
+      </div>
       <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={internalColor || ''}
+        onChange={(e) => handleColorChange(e.target.value)}
         placeholder={placeholder}
         className="w-24"
       />
     </div>
   );
 }
+
