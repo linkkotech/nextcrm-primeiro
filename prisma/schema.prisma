@@ -16,6 +16,31 @@ enum TemplateType {
   content_block
 }
 
+enum OperationMode {
+  Comercial
+  RedeApoio
+  Hibrido
+}
+
+enum SubscriptionType {
+  Recorrente
+  Contrato
+}
+
+enum BillingCycle {
+  Monthly
+  Semiannual
+  Yearly
+  OneTime
+}
+
+enum SubscriptionStatus {
+  Active
+  Paused
+  Cancelled
+  Expired
+}
+
 // ===================================
 // MODELOS DE AUTENTICAÇÃO E CORE
 // ===================================
@@ -27,12 +52,14 @@ model User {
   email                String?           @unique
   emailVerified        DateTime?
   image                String?
+  deletedAt            DateTime?
   adminRoleId          String?
   adminRole            AdminRole?        @relation(fields: [adminRoleId], references: [id])
   workspacesOwned      Workspace[]       @relation("WorkspaceOwner")
   workspaceMemberships WorkspaceMember[]
   createdTemplates     DigitalTemplate[] @relation("TemplateCreator")
   digitalProfiles      DigitalProfile[]
+  preferences          Json?             // Stores user UI preferences: theme, language, timezone, dateFormat, timeFormat, highContrast, twoFactorMethod
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 }
@@ -78,7 +105,9 @@ model Workspace {
   events           Event[]
   automations      Automation[]
   reviews          Review[]
-  plannings        Planning[]
+  
+  // Relação com assinatura de plano
+  subscription WorkspaceSubscription?
 }
 
 model WorkspaceMember {
@@ -240,12 +269,51 @@ model Review {
   updatedAt   DateTime  @updatedAt
 }
 
-// Planning
-model Planning {
-  id          String    @id @default(cuid())
-  planName    String
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+// ===================================
+// PLANOS E ASSINATURAS
+// ===================================
+
+// Plan: Catálogo de planos oferecidos pela plataforma
+// Define os diferentes níveis de serviço disponíveis
+model Plan {
+  id               String                    @id @default(cuid())
+  name             String                    // Nome do plano (ex: "Profissional")
+  description      String?                   // Descrição opcional
+  operationMode    OperationMode             // Modo de operação (Comercial, RedeApoio, Hibrido)
+  subscriptionType SubscriptionType          // Tipo de assinatura (Trial, Basic, Professional, Enterprise)
+  billingCycle     BillingCycle?             // Ciclo de faturamento (Monthly, Quarterly, Yearly)
+  price            Decimal                   // Preço em decimal (ex: 99.90)
+  userLimit        Int                       // Limite máximo de usuários
+  features         Json                      // Array de features em JSON (armazenado como array de strings)
+  isActive         Boolean                   @default(true)
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+
+  // Relações
+  subscriptions WorkspaceSubscription[] @relation("PlanSubscriptions")
+
+  @@index([isActive])
 }
+
+// WorkspaceSubscription: Vincula um Workspace a um Plan
+// Representa a assinatura de um workspace a um plano específico
+model WorkspaceSubscription {
+  id                   String               @id @default(cuid())
+  workspaceId          String               @unique // Um workspace por assinatura (relação 1:1)
+  workspace            Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  planId               String
+  plan                 Plan                 @relation("PlanSubscriptions", fields: [planId], references: [id])
+  status               SubscriptionStatus   @default(Active)
+  stripeSubscriptionId String?              // ID da assinatura no Stripe (para integração de pagamento)
+  startDate            DateTime             @default(now())
+  endDate              DateTime?            // Data de término (null = sem fim determinado)
+  renewalDate          DateTime?            // Próxima data de renovação automática
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@index([workspaceId])
+  @@index([planId])
+  @@index([status])
+}
+
+// Planning

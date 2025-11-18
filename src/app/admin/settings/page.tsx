@@ -1,34 +1,38 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/session";
+import { SettingsClient } from "@/components/admin/settings/SettingsClient";
+
+export const metadata: Metadata = {
+  title: "Minhas Configurações | NextCRM",
+  description: "Gerencie suas configurações de perfil, segurança e preferências",
+};
 
 export const dynamic = "force-dynamic";
 
-export default function AdminSettingsPage() {
-  return (
-    <div className="space-y-6">
-      {/* Cabeçalho da Página */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Configurações da Empresa
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Gerencie informações institucionais e identidade da organização
-        </p>
-      </div>
+/**
+ * Página de Configurações da Conta (Admin)
+ * Permite que usuários gerenciem seu perfil, segurança e preferências
+ *
+ * Fluxo:
+ * 1. Validar que usuário está autenticado (middleware já protege /admin/*)
+ * 2. Renderizar componente client-side com todas as seções
+ */
+export default async function SettingsPage() {
+  // Validar autenticação
+  let user = null;
+  try {
+    user = await getUser();
+  } catch (error) {
+    console.error("Error fetching user in settings page:", error);
+    redirect("/sign-in");
+  }
 
-      {/* Card de Dados da Empresa */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Dados da Empresa</CardTitle>
-          <CardDescription>
-            Nome, CNPJ, endereço, logo e informações de contato
-          </CardDescription>
-        </CardHeader>
-        <div className="px-6 py-4 text-sm text-muted-foreground">
-          <p>Configurações disponíveis em breve...</p>
-        </div>
-      </Card>
-    </div>
-  );
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  return <SettingsClient user={user} />;
 }
 
 
