@@ -95,7 +95,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push("/admin/settings")}>
+              <DropdownMenuItem onClick={() => router.push("/settings/profile")}>
                 <BadgeCheck />
                 Configurações da Conta
               </DropdownMenuItem>

@@ -51,7 +51,6 @@ const data = {
     { title: "Módulos", url: "/admin/modules", icon: Blocks },
   ],
   navSecondary: [
-    { title: "Configurações", url: "/admin/settings", icon: Settings2 },
     { title: "Suporte", url: "/admin/support", icon: LifeBuoy },
   ],
 }

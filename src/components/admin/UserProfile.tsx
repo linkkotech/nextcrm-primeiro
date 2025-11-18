@@ -66,7 +66,7 @@ export function UserProfile({ name, email, image }: UserProfileProps) {
           <User className="mr-2 h-4 w-4" />
           <span>Perfil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/admin/settings")}>
+        <DropdownMenuItem onClick={() => router.push("/settings/profile")}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Configurações</span>
         </DropdownMenuItem>
