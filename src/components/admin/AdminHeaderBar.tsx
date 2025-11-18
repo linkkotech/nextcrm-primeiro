@@ -1,19 +1,13 @@
 "use client";
 
-import { Bell, Moon, Sun, Search, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, Moon, Sun, Sparkles, Search } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useHeader } from "@/context/HeaderContext";
+import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,30 +19,51 @@ interface AdminHeaderBarProps {
   onToggleAiSidebar?: () => void;
 }
 
+/**
+ * Header Primário - Exibe título principal, trigger de sidebar e controles globais.
+ * Consome contexto para exibir o título dinâmico da página atual.
+ */
 export function AdminHeaderBar({ onToggleAiSidebar }: AdminHeaderBarProps) {
   const { setTheme, theme } = useTheme();
+  const { primaryTitle } = useHeader();
+  const { setIsOpen } = useCommandPalette();
+  const [mounted, setMounted] = useState(false);
+
+  // Aguardar montagem para evitar hydration mismatch no tema
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-6">
       <div className="flex items-center gap-2 flex-1">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="#">
-                Building Your Application
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        
+        {/* Título Primário Dinâmico */}
+        {primaryTitle ? (
+          <h2 className="text-lg font-semibold text-foreground">{primaryTitle}</h2>
+        ) : (
+          <span className="text-sm text-muted-foreground">Admin</span>
+        )}
       </div>
 
-      {/* Right side: AI Assistant | Notifications | Theme Toggle | Search */}
+      {/* Search Button - Trigger da Paleta de Comandos */}
+      <Button
+        variant="outline"
+        className="h-10 w-[300px] justify-between px-3 py-2 text-sm text-muted-foreground bg-white"
+        onClick={() => setIsOpen(true)}
+      >
+        <div className="flex items-center gap-2">
+          <Search className="h-4 w-4" />
+          <span>Pesquisar...</span>
+        </div>
+        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </Button>
+
+      {/* Right side: AI Assistant | Notifications | Theme Toggle */}
       <div className="flex items-center gap-2">
         {/* AI Assistant */}
         <Button 
@@ -78,7 +93,7 @@ export function AdminHeaderBar({ onToggleAiSidebar }: AdminHeaderBarProps) {
                   <div className="flex flex-col gap-1">
                     <p className="text-sm font-medium">Nova mensagem</p>
                     <p className="text-xs text-muted-foreground">
-                      Você tem 3 novas mensagens não lidas
+                      Você tem uma nova mensagem de um cliente
                     </p>
                   </div>
                 </DropdownMenuItem>
@@ -86,7 +101,7 @@ export function AdminHeaderBar({ onToggleAiSidebar }: AdminHeaderBarProps) {
                   <div className="flex flex-col gap-1">
                     <p className="text-sm font-medium">Atualização do sistema</p>
                     <p className="text-xs text-muted-foreground">
-                      Nova versão disponível
+                      Uma atualização está disponível
                     </p>
                   </div>
                 </DropdownMenuItem>
@@ -95,40 +110,24 @@ export function AdminHeaderBar({ onToggleAiSidebar }: AdminHeaderBarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Theme Toggle */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Search Bar */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Pesquisar..."
-            className="w-[200px] lg:w-[300px] pl-8"
-          />
-        </div>
+        {/* Theme Toggle - Renderiza placeholder até montar no cliente */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          {mounted ? (
+            theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )
+          ) : (
+            <div className="h-5 w-5" />
+          )}
+        </Button>
       </div>
     </header>
   );
 }
+

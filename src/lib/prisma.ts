@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { setupSoftDeleteMiddleware } from "./prisma-middleware";
 
 /**
  * Singleton pattern para PrismaClient
@@ -20,9 +21,13 @@ const globalForPrisma = globalThis as unknown as {
 /**
  * Provides a singleton Prisma client so hot reloads do not exhaust database connections.
  *
+ * IMPORTANTE: O middleware de soft delete é configurado automaticamente na inicialização.
+ * Isso garante que queries do modelo User sejam filtradas automaticamente.
+ *
  * @example
  * ```ts
  * const users = await prisma.user.findMany({ where: { workspaceId } })
+ * // Automaticamente filtra: where: { ..., deletedAt: null }
  * ```
  *
  * @throws {Error} When Prisma cannot establish a connection using the current environment variables.
@@ -34,7 +39,13 @@ export const prisma =
     log: ["error", "warn"],
   });
 
+// Configurar middleware de soft delete apenas na inicialização
+if (!globalForPrisma.prisma) {
+  setupSoftDeleteMiddleware(prisma);
+}
+
 // Em desenvolvimento, salvar no global para hot-reload reutilizar
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
+

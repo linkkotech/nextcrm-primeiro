@@ -420,7 +420,7 @@ export function HeroBlockEditor({ templateId, blockData, register, control, hand
                   control={control}
                   render={({ field }) => (
                     <ColorPickerNative
-                      value={field.value || '#000000'}
+                      value={field.value || '#1F2937'}
                       onChange={field.onChange}
                     />
                   )}

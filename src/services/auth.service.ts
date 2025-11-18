@@ -95,14 +95,25 @@ export async function authenticateWithCredentials(
 }
 
 /**
- * Creates a new Supabase account and persists the mirrored record in Prisma so application metadata stays in sync.
+ * Creates a new Supabase account and persists the mirrored record in Prisma.
+ * 
+ * **Automatic Super_Admin Assignment:**
+ * The first user created in the system is automatically assigned the super_admin role.
+ * Subsequent users are created as regular users without administrative privileges.
+ * This ensures that the initial admin user is established without manual intervention.
+ * 
+ * Plan selection is deferred to after account creation via the createWorkspace Server Action.
+ * This allows users to create accounts without immediately choosing a plan.
  *
  * @example
  * ```ts
  * const result = await registerUser(name, email, password)
+ * if (!result.success) throw new Error(result.message)
+ * // First call: user.adminRoleId === superAdminRole.id
+ * // Subsequent calls: user.adminRoleId === null
  * ```
  *
- * @throws {Error} When Supabase client creation fails.
+ * @throws {Error} When Supabase client creation fails or super_admin role is missing.
  * @returns {Promise<AuthResult>} Details whether the provisioning succeeded and exposes the Prisma user id on success.
  */
 export async function registerUser(
@@ -122,6 +133,24 @@ export async function registerUser(
       return {
         success: false,
         message: "Este email já está cadastrado.",
+      };
+    }
+
+    // Contar quantos usuários já existem no banco
+    // IMPORTANTE: Se userCount === 0, o novo usuário será designado como super_admin
+    const userCount = await prisma.user.count();
+
+    // Buscar a AdminRole de super_admin (necessária para designação automática)
+    const superAdminRole = await prisma.adminRole.findUnique({
+      where: { name: "super_admin" },
+    });
+
+    // EDGE CASE: Se a seed não foi executada, a role não existe
+    if (!superAdminRole) {
+      return {
+        success: false,
+        message:
+          "Erro de configuração: a role 'super_admin' não foi encontrada. Execute o seed do banco de dados.",
       };
     }
 
@@ -150,7 +179,13 @@ export async function registerUser(
       };
     }
 
-    // Criar registro User no Prisma
+    /**
+     * Criar registro User no Prisma (espelhando Supabase Auth)
+     * 
+     * LÓGICA CONDICIONAL DE SUPER_ADMIN:
+     * - Se userCount === 0: este é o primeiro usuário → adminRoleId = superAdminRole.id
+     * - Se userCount > 0: usuários posteriores → adminRoleId = null (usuário normal)
+     */
     const user = await prisma.user.create({
       data: {
         supabaseUserId: data.user.id,
@@ -159,6 +194,8 @@ export async function registerUser(
         emailVerified: data.user.email_confirmed_at
           ? new Date(data.user.email_confirmed_at)
           : null,
+        // DESIGNAÇÃO AUTOMÁTICA: Primeiro usuário recebe super_admin
+        adminRoleId: userCount === 0 ? superAdminRole.id : null,
       },
     });
 

@@ -47,8 +47,8 @@ export function SidebarNavigationSimple({
       {/* Logo e Search */}
       <div className="border-b border-border p-4">
         <div className="mb-4 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700">
-            <span className="text-sm font-bold text-white">N</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <span className="text-sm font-bold text-primary-foreground">N</span>
           </div>
           <span className="text-lg font-semibold text-foreground">NextCRM</span>
         </div>

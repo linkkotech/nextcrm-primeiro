@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { RouteProvider } from "@/components/providers/route-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import "@/styles/globals.css";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-outfit",
 });
 
 export const metadata: Metadata = {
@@ -26,12 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${outfit.variable} scroll-smooth`} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         <RouteProvider>
           <ThemeProvider defaultTheme="light" enableSystem>
             {children}
-            <Toaster richColors position="top-right" closeButton />
+            <Toaster richColors position="top-center" closeButton />
           </ThemeProvider>
         </RouteProvider>
       </body>

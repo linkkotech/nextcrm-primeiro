@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,49 +30,41 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// Zod Schema
-const inviteMemberSchema = z.object({
-  fullName: z
-    .string()
-    .min(1, "Nome completo é obrigatório")
-    .min(3, "Nome deve ter pelo menos 3 caracteres"),
-  email: z
-    .string()
-    .min(1, "Email é obrigatório")
-    .email("Email inválido"),
-  role: z.enum(["super_admin", "admin", "manager"], {
-    errorMap: () => ({ message: "Selecione uma função válida" }),
-  }),
-  password: z
-    .string()
-    .min(1, "Senha é obrigatória")
-    .min(6, "Senha deve ter pelo menos 6 caracteres"),
-});
-
-type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
+import { inviteMemberSchema, type InviteMemberInput } from "@/schemas/team.schemas";
+import { inviteTeamMember } from "@/services/team.actions";
 
 interface InviteMemberFormProps {
-  onSubmit: (data: InviteMemberFormData) => void;
+  availableRoles: { id: string; name: string }[];
+  onSubmit: (data: InviteMemberInput) => Promise<void>;
   onCancel: () => void;
+  isLoading: boolean;
 }
 
-function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
+function InviteMemberForm({
+  availableRoles,
+  onSubmit,
+  onCancel,
+  isLoading,
+}: InviteMemberFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const form = useForm<InviteMemberFormData>({
+  const form = useForm<InviteMemberInput>({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       fullName: "",
       email: "",
-      role: "manager",
+      adminRoleId: "",
       password: "",
     },
   });
 
+  const handleSubmit = async (data: InviteMemberInput) => {
+    await onSubmit(data);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Full Name */}
         <FormField
           control={form.control}
@@ -81,7 +73,11 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
             <FormItem>
               <FormLabel>Nome Completo</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: João Silva" {...field} />
+                <Input
+                  placeholder="Ex: João Silva"
+                  disabled={isLoading}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -98,7 +94,8 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="Ex: joao@linkko.tech"
+                  placeholder="Ex: admin@example.com"
+                  disabled={isLoading}
                   {...field}
                 />
               </FormControl>
@@ -110,20 +107,26 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
         {/* Role */}
         <FormField
           control={form.control}
-          name="role"
+          name="adminRoleId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Função</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={isLoading}
+              >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecione uma função" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
+                  {availableRoles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -142,13 +145,15 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Ex: Senha123"
+                    placeholder="Min. 8 caracteres, 1 maiúscula, 1 número"
+                    disabled={isLoading}
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -165,10 +170,17 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
 
         {/* Dialog Footer */}
         <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             Cancelar
           </Button>
-          <Button type="submit">Convidar</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Enviando..." : "Convidar"}
+          </Button>
         </DialogFooter>
       </form>
     </Form>
@@ -178,15 +190,31 @@ function InviteMemberForm({ onSubmit, onCancel }: InviteMemberFormProps) {
 interface InviteMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  availableRoles: { id: string; name: string }[];
 }
 
+/**
+ * Dialog para convidar novos membros administrativos.
+ * Integra com Server Action inviteTeamMember para criar usuário com segurança.
+ */
 export function InviteMemberDialog({
   open,
   onOpenChange,
+  availableRoles,
 }: InviteMemberDialogProps) {
-  const handleSubmit = (data: InviteMemberFormData) => {
-    console.log("Novo membro convidado:", data);
-    onOpenChange(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = async (data: InviteMemberInput) => {
+    startTransition(async () => {
+      const result = await inviteTeamMember(data);
+
+      if (result.success) {
+        toast.success(result.message);
+        onOpenChange(false);
+      } else {
+        toast.error(result.error || result.message);
+      }
+    });
   };
 
   return (
@@ -195,13 +223,15 @@ export function InviteMemberDialog({
         <DialogHeader>
           <DialogTitle>Convidar Novo Membro</DialogTitle>
           <DialogDescription>
-            Adicione um novo membro à equipe do SmartHub Studio
+            Adicione um novo membro à equipe administrativa
           </DialogDescription>
         </DialogHeader>
 
         <InviteMemberForm
+          availableRoles={availableRoles}
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
+          isLoading={isPending}
         />
       </DialogContent>
     </Dialog>

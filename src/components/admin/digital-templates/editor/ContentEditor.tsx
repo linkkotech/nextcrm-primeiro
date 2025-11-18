@@ -76,9 +76,10 @@ interface ContentEditorProps {
   templateId: string;
   initialContent: HeroBlockContent;
   onHeroValuesChange?: (values: HeroBlockContent) => void;
+  onDynamicBlocksChange?: (blocks: Block[]) => void;
 }
 
-export function ContentEditor({ templateId, initialContent, onHeroValuesChange }: ContentEditorProps) {
+export function ContentEditor({ templateId, initialContent, onHeroValuesChange, onDynamicBlocksChange }: ContentEditorProps) {
   const [dynamicBlocks, setDynamicBlocks] = useState<Block[]>([]);
   const [isAddBlockSheetOpen, setIsAddBlockSheetOpen] = useState(false);
 
@@ -99,8 +100,9 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
         };
       });
       setDynamicBlocks(loadedBlocks);
+      onDynamicBlocksChange?.(loadedBlocks);
     }
-  }, [initialContent]);
+  }, [initialContent, onDynamicBlocksChange]);
   
   // ✅ SOLUÇÃO: Estado separado para blocos fixos
   const [heroActive, setHeroActive] = useState(true);
@@ -161,7 +163,11 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
       content: {},
       icon: meta.icon(),
     };
-    setDynamicBlocks((prev) => [...prev, newBlock]);
+    setDynamicBlocks((prev) => {
+      const updated = [...prev, newBlock];
+      onDynamicBlocksChange?.(updated);
+      return updated;
+    });
     setIsAddBlockSheetOpen(false);
   }, [customBlockOptions]);
 
@@ -180,8 +186,8 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
           content: {
             ctaText: 'AGENDAR UMA REUNIÃO',
             destinationUrl: '',
-            primaryColor: '#FFFF00',
-            secondaryColor: '#FF0000',
+            primaryColor: '#373F4B',
+            secondaryColor: '#9CA3AF',
           },
           icon: meta.icon(),
         };
@@ -236,7 +242,7 @@ export function ContentEditor({ templateId, initialContent, onHeroValuesChange }
   }, []);
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <div className="p-6 pr-2 w-full space-y-6">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-sm font-semibold text-muted-foreground">BLOCOS</h2>

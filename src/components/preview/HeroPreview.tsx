@@ -9,15 +9,14 @@ interface HeroPreviewProps {
 }
 
 export function HeroPreview({ values }: HeroPreviewProps) {
-  // Compute background color dynamically
-  const backgroundColor = values?.styles?.blockBackgroundColor || '#ffffff';
+  // Compute colors dynamically
   const titleColor = values?.styles?.blockTitleColor || '#1f2937';
   const subtitleColor = values?.styles?.blockSubtitleColor || '#4b5563';
   const buttonBgColor = values?.styles?.buttonBackgroundColor || '#e5e7eb';
   const buttonTextColor = values?.styles?.buttonTextColor || '#374151';
 
   return (
-    <div className="w-full flex flex-col gap-6" style={{ backgroundColor }}>
+    <div className="w-full flex flex-col gap-6 bg-transparent">
       {/* Header Condicional */}
       {values?.isHeaderEnabled && <HeaderPreview />}
 

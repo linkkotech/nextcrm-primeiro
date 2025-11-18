@@ -61,12 +61,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Se está autenticado e está tentando acessar página de login/signup
-  if (user && (request.nextUrl.pathname === '/sign-in' || request.nextUrl.pathname === '/sign-up')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin/dashboard'
-    return NextResponse.redirect(url)
-  }
+  // ✅ REMOVIDO: Não redirecionar aqui após login/signup.
+  // A lógica de redirecionamento agora é controlada EXCLUSIVAMENTE pela loginAction/signupAction
+  // que retornam { redirectTo } com base na AdminRole do usuário.
+  // O middleware NÃO deve sobrescrever essa lógica.
 
   return supabaseResponse
 }

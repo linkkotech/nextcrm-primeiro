@@ -31,19 +31,19 @@ export const ctaBlockContentSchema = z.object({
     .string()
     .regex(/^#[0-9A-F]{6}$/i, 'Cor primária inválida')
     .optional()
-    .default('#FFFF00'),
+    .default('#373F4B'),
   secondaryColor: z
     .string()
     .regex(/^#[0-9A-F]{6}$/i, 'Cor secundária inválida')
     .optional()
-    .default('#FF0000'),
+    .default('#9CA3AF'),
 
   // Estilo do Texto do Botão
   textColor: z
     .string()
     .regex(/^#[0-9A-F]{6}$/i, 'Cor do texto inválida')
     .optional()
-    .default('#FFFFFF'),
+    .default('#1F2937'),
   textAlignment: z
     .enum(['center', 'left', 'right', 'justify'], {
       errorMap: () => ({ message: 'Alinhamento inválido' }),

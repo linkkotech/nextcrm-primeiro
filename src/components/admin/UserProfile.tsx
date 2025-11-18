@@ -42,7 +42,7 @@ export function UserProfile({ name, email, image }: UserProfileProps) {
           <div className="relative">
             <Avatar className="h-8 w-8">
               <AvatarImage src={image || undefined} alt={name || "User"} />
-              <AvatarFallback className="bg-brand-600 text-white text-sm font-medium">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
                 {initials}
               </AvatarFallback>
             </Avatar>

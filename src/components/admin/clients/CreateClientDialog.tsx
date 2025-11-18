@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { createWorkspace } from "@/lib/actions/workspace.actions";
 
 // Zod Schema
 const createWorkspaceSchema = z.object({
@@ -56,20 +58,32 @@ const createWorkspaceSchema = z.object({
     .min(6, "Senha deve ter pelo menos 6 caracteres")
     .regex(/[A-Z]/, "Senha deve conter pelo menos uma letra maiúscula")
     .regex(/[0-9]/, "Senha deve conter pelo menos um número"),
+  planId: z.string().min(1, "A seleção de um plano é obrigatória."),
 });
 
 type CreateWorkspaceFormData = z.infer<typeof createWorkspaceSchema>;
 
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  billingCycle?: string;
+}
+
 interface CreateWorkspaceFormProps {
   onSubmit: (data: CreateWorkspaceFormData) => void;
   onCancel: () => void;
+  availablePlans: Plan[];
 }
 
 function CreateWorkspaceForm({
   onSubmit,
   onCancel,
+  availablePlans,
 }: CreateWorkspaceFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<CreateWorkspaceFormData>({
     resolver: zodResolver(createWorkspaceSchema),
@@ -80,15 +94,38 @@ function CreateWorkspaceForm({
       adminName: "",
       adminEmail: "",
       password: "",
+      planId: "",
     },
   });
 
   const clientType = form.watch("clientType");
   const isPersonalClient = clientType === "pf";
 
+  const handleFormSubmit = async (data: CreateWorkspaceFormData) => {
+    setError(null);
+    
+    startTransition(async () => {
+      const result = await createWorkspace(data);
+      
+      if (!result.success) {
+        setError(result.error || result.message);
+      } else {
+        // Sucesso - fechar dialog e chamar callback
+        onSubmit(data);
+      }
+    });
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Workspace Information */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold">Informações do Workspace</h3>
@@ -102,6 +139,7 @@ function CreateWorkspaceForm({
                 <FormControl>
                   <Input
                     placeholder="Ex: Acme Corporation"
+                    disabled={isPending}
                     {...field}
                   />
                 </FormControl>
@@ -149,6 +187,7 @@ function CreateWorkspaceForm({
                           ? "000.000.000-00"
                           : "00.000.000/0000-00"
                       }
+                      disabled={isPending}
                       {...field}
                     />
                   </FormControl>
@@ -157,6 +196,39 @@ function CreateWorkspaceForm({
               )}
             />
           </div>
+        </div>
+
+        {/* Plan Selection */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold">Plano de Assinatura</h3>
+
+          <FormField
+            control={form.control}
+            name="planId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Selecione um Plano *</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Escolha um plano..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {availablePlans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        <span className="font-medium">{plan.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         {/* Administrator Information */}
@@ -172,6 +244,7 @@ function CreateWorkspaceForm({
                 <FormControl>
                   <Input
                     placeholder="Ex: João Silva"
+                    disabled={isPending}
                     {...field}
                   />
                 </FormControl>
@@ -190,6 +263,7 @@ function CreateWorkspaceForm({
                   <Input
                     type="email"
                     placeholder="Ex: admin@empresa.com"
+                    disabled={isPending}
                     {...field}
                   />
                 </FormControl>
@@ -209,6 +283,7 @@ function CreateWorkspaceForm({
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 6 caracteres, 1 letra e 1 número"
+                      disabled={isPending}
                       {...field}
                     />
                     <Button
@@ -237,10 +312,12 @@ function CreateWorkspaceForm({
 
         {/* Dialog Footer */}
         <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
             Cancelar
           </Button>
-          <Button type="submit">Criar Workspace</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Criando..." : "Criar Workspace"}
+          </Button>
         </DialogFooter>
       </form>
     </Form>
@@ -250,11 +327,13 @@ function CreateWorkspaceForm({
 interface CreateClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  availablePlans: Plan[];
 }
 
 export function CreateClientDialog({
   open,
   onOpenChange,
+  availablePlans,
 }: CreateClientDialogProps) {
   const handleSubmit = (data: CreateWorkspaceFormData) => {
     console.log("Novo workspace:", data);
@@ -274,6 +353,7 @@ export function CreateClientDialog({
         <CreateWorkspaceForm
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
+          availablePlans={availablePlans}
         />
       </DialogContent>
     </Dialog>

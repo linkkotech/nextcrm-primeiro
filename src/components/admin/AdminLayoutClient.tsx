@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeaderBar } from "./AdminHeaderBar";
+import { SecondaryHeader } from "@/components/layout/SecondaryHeader";
 import { AiAssistantSidebar } from "@/components/layout/AiAssistantSidebar";
+import { CommandPaletteProvider } from "@/context/CommandPaletteContext";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 
@@ -23,26 +25,29 @@ export function AdminLayoutClient({
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
 
   return (
-    <SidebarProvider className="h-screen min-h-0">
-      <AdminSidebar
-        userName={userName}
-        userEmail={userEmail}
-        userImage={userImage}
-      />
-      <SidebarInset className="overflow-hidden">
-        <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />
-        <div className="flex flex-1 flex-col overflow-hidden p-6 min-h-0">
-          {children}
-        </div>
-      </SidebarInset>
+    <CommandPaletteProvider>
+      <SidebarProvider className="h-screen min-h-0">
+        <AdminSidebar
+          userName={userName}
+          userEmail={userEmail}
+          userImage={userImage}
+        />
+        <SidebarInset className="overflow-y-hidden">
+          <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />
+          <SecondaryHeader />
+          <div className="flex flex-1 flex-col overflow-y-auto p-6 min-h-0">
+            {children}
+          </div>
+        </SidebarInset>
 
-      {/* AI Assistant Sheet */}
-      <Sheet open={isAiSidebarOpen} onOpenChange={setIsAiSidebarOpen}>
-        <SheetContent>
-          <AiAssistantSidebar />
-        </SheetContent>
-      </Sheet>
-    </SidebarProvider>
+        {/* AI Assistant Sheet */}
+        <Sheet open={isAiSidebarOpen} onOpenChange={setIsAiSidebarOpen}>
+          <SheetContent>
+            <AiAssistantSidebar />
+          </SheetContent>
+        </Sheet>
+      </SidebarProvider>
+    </CommandPaletteProvider>
   );
 }
 

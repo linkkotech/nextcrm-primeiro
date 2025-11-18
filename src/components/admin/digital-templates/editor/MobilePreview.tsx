@@ -34,9 +34,9 @@ export function MobilePreview({ templateName = "Template", previewUrl = "example
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl z-10" />
 
           {/* Screen Content */}
-          <div className="flex h-[640px] w-full flex-col overflow-hidden bg-gradient-to-b from-blue-400 to-blue-600">
+          <div className="flex h-[640px] w-full flex-col overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200">
             {/* Status Bar Placeholder */}
-            <div className="flex h-8 items-center justify-between bg-black/20 px-4 text-xs text-white">
+            <div className="flex h-8 items-center justify-between bg-slate-700 px-4 text-xs text-slate-100">
               <span>9:41</span>
               <div className="flex gap-1">
                 <span>📶</span>
@@ -53,22 +53,22 @@ export function MobilePreview({ templateName = "Template", previewUrl = "example
               {heroValues?.isCTAEnabled && (
                 <CTAPreview 
                   ctaText={heroValues.ctaText}
-                  primaryColor="#FFFF00"
-                  secondaryColor="#FF0000"
+                  primaryColor="#373F4B"
+                  secondaryColor="#9CA3AF"
                 />
               )}
 
               {/* 3. Conteúdo Dinâmico - Meio (flex-1 para preencher espaço restante) */}
-              <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600 p-6">
-                <div className="text-center text-white">
+              <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-slate-600 to-slate-700 p-6">
+                <div className="text-center text-slate-100">
                   <p className="text-sm font-medium">Conteúdo dinâmico</p>
-                  <p className="text-xs text-white/70 mt-1">Blocos adicionais aparecerão aqui</p>
+                  <p className="text-xs text-slate-300 mt-1">Blocos adicionais aparecerão aqui</p>
                 </div>
               </div>
 
               {/* 3. Menu Mobile - Rodapé (altura fixa) */}
-              <div className="h-16 bg-blue-800 border-t-2 border-blue-900 flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">Menu Mobile</span>
+              <div className="h-16 bg-slate-700 border-t-2 border-slate-800 flex items-center justify-center">
+                <span className="text-slate-100 text-sm font-semibold">Menu Mobile</span>
               </div>
             </div>
           </div>

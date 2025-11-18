@@ -201,8 +201,10 @@ export async function isSuperAdmin(): Promise<boolean> {
 export async function getAuthSession() {
   try {
     const supabaseUser = await getSupabaseUser();
+    console.log("[DEBUG getAuthSession] supabaseUser:", supabaseUser?.id);
     
     if (!supabaseUser) {
+      console.log("[DEBUG getAuthSession] Nenhum usuário Supabase encontrado");
       return { user: null };
     }
 
@@ -249,6 +251,7 @@ export async function getAuthSession() {
       },
     });
 
+    console.log("[DEBUG getAuthSession] user encontrado:", user?.id);
     return { user };
   } catch (error) {
     console.error("Error in getAuthSession():", error);

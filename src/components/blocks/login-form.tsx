@@ -41,9 +41,9 @@ export function LoginForm() {
       
       if (result.error) {
         setError(result.error)
-      } else {
-        // Sucesso - o middleware vai redirecionar
-        router.push("/admin/dashboard")
+      } else if (result.redirectTo) {
+        // Sucesso - redirecionar para o destino apropriado (admin ou workspace)
+        router.push(result.redirectTo)
       }
     })
   }

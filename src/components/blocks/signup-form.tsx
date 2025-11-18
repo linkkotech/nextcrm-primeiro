@@ -20,7 +20,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { signupSchema, type SignupInput } from "@/schemas/auth.schemas"
 import { signupAction } from "@/lib/actions/auth.actions"
 
-export function SignupForm() {
+interface SignupFormProps {
+  // availablePlans removido - plano será selecionado após criar conta
+}
+
+export function SignupForm({ availablePlans }: SignupFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -41,9 +45,9 @@ export function SignupForm() {
       
       if (result.error) {
         setError(result.error)
-      } else if (result.success) {
-        // Sucesso - o middleware vai redirecionar
-        router.push("/admin/dashboard")
+      } else if (result.redirectTo) {
+        // Sucesso - redirecionar para o destino apropriado (admin ou workspace)
+        router.push(result.redirectTo)
       }
     })
   }
@@ -127,6 +131,7 @@ export function SignupForm() {
                 <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
               )}
             </div>
+
             
             <Button 
               type="submit" 

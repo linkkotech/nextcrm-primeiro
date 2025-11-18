@@ -55,18 +55,18 @@ export function CTAEditor({
       name: initialContent?.name || 'AGENDAR UMA REUNIÃO',
       imageThumbnail: initialContent?.imageThumbnail || '',
       iconClass: initialContent?.iconClass || '',
-      primaryColor: initialContent?.primaryColor || '#FFFF00',
-      secondaryColor: initialContent?.secondaryColor || '#FF0000',
-      textColor: initialContent?.textColor || '#FFFFFF',
+      primaryColor: initialContent?.primaryColor || '#373F4B',
+      secondaryColor: initialContent?.secondaryColor || '#9CA3AF',
+      textColor: initialContent?.textColor || '#1F2937',
       textAlignment: initialContent?.textAlignment || 'center',
-      backgroundColor: initialContent?.backgroundColor || '#000000',
+      backgroundColor: initialContent?.backgroundColor || '#E5E7EB',
       animation: initialContent?.animation || 'none',
       sensitiveContentWarning:
         initialContent?.sensitiveContentWarning || false,
       columns: initialContent?.columns || '1',
       border: initialContent?.border || {
         width: 0,
-        color: '#000000',
+        color: '#1F2937',
         radius: 8,
         style: 'solid',
       },
@@ -75,7 +75,7 @@ export function CTAEditor({
         vOffset: 0,
         blur: 0,
         spread: 0,
-        color: '#000000',
+        color: '#1F2937',
       },
       display: initialContent?.display || {
         padding: 16,
@@ -318,7 +318,7 @@ export function CTAEditor({
           <AccordionItem value="border" className="border bg-secondary rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline hover:bg-secondary/80 transition-colors py-0 h-10">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                <div className="w-4 h-4 bg-slate-500 rounded"></div>
                 <span className="font-medium">Configurações de Borda</span>
               </div>
             </AccordionTrigger>
@@ -409,7 +409,7 @@ export function CTAEditor({
           <AccordionItem value="shadow" className="border bg-secondary rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline hover:bg-secondary/80 transition-colors py-0 h-10">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                <div className="w-4 h-4 bg-slate-600 rounded"></div>
                 <span className="font-medium">Configurações de Sombra</span>
               </div>
             </AccordionTrigger>
@@ -506,7 +506,7 @@ export function CTAEditor({
           <AccordionItem value="display" className="border bg-secondary rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline hover:bg-secondary/80 transition-colors py-0 h-10">
               <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <div className="w-4 h-4 bg-slate-400 rounded"></div>
                 <span className="font-medium">Configurações de Espaçamento</span>
               </div>
             </AccordionTrigger>

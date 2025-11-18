@@ -9,6 +9,21 @@ const config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+  		},
+  		fontSize: {
+  			xs: '0.95rem',
+  			sm: '0.975rem',
+  			base: '1.1rem',
+  		},
+  		fontWeight: {
+  			light: '200',
+  			normal: '300',
+  			medium: '400',
+  			semibold: '500',
+  			bold: '600',
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

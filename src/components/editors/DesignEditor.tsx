@@ -62,10 +62,10 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
   const [designConfig, setDesignConfig] = useState<DesignConfig>({
     heroModel: 'biolink',
     colors: {
-      primary: "#0066cc",
-      secondary: "#6c757d",
-      accent: "#17a2b8",
-      text: "#212529",
+      primary: "#373F4B",
+      secondary: "#9CA3AF",
+      accent: "#E5E7EB",
+      text: "#1F2937",
     },
     typography: {
       fontFamily: "Inter",
@@ -77,7 +77,7 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
     },
     buttonBorder: {
       width: 2,
-      color: "#000000",
+      color: "#1F2937",
       radius: "arredondado",
       style: "solid",
     },
@@ -86,7 +86,7 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
       vOffset: 0,
       blur: 5,
       spread: 0,
-      color: "#000000",
+      color: "#1F2937",
     },
   });
 
@@ -165,8 +165,8 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
                 }`}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">Preview</span>
+                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                    <span className="text-slate-100 font-semibold text-sm">Preview</span>
                   </div>
                   <span className="text-sm font-medium">BioLink</span>
                 </div>
@@ -190,8 +190,8 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
                 }`}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">Preview</span>
+                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
+                    <span className="text-slate-100 font-semibold text-sm">Preview</span>
                   </div>
                   <span className="text-sm font-medium">BioPremium</span>
                 </div>
@@ -215,8 +215,8 @@ export function DesignEditor({ templateId, onSave }: DesignEditorProps) {
                 }`}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">Preview</span>
+                  <div className="w-full h-24 rounded-md bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center">
+                    <span className="text-slate-100 font-semibold text-sm">Preview</span>
                   </div>
                   <span className="text-sm font-medium">BioPublic</span>
                 </div>

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Crie sua conta NextCRM",
 }
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <SignupForm />

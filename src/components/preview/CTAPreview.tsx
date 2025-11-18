@@ -14,8 +14,8 @@ interface CTAPreviewProps {
 export function CTAPreview({
   ctaText = "AGENDAR UMA REUNIÃO",
   icon,
-  primaryColor = "#FFFF00",
-  secondaryColor = "#FF0000",
+  primaryColor = "#373F4B",
+  secondaryColor = "#9CA3AF",
   buttonVariant = "default",
 }: CTAPreviewProps) {
   const defaultIcon = <Calendar className="mr-2 h-5 w-5" />;
