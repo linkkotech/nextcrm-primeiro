@@ -10,11 +10,13 @@ import { SupportPermissionsSection } from "@/components/admin/settings/SupportPe
 import { DangerZoneSection } from "@/components/admin/settings/DangerZoneSection";
 
 /**
- * Página de Configurações do Usuário - Coluna Única
+ * Página de Configurações do Usuário Administrador
  * 
- * Exibe todas as seções de configuração em uma única página rolável.
+ * Exibe todas as seções de configuração pessoal em uma única página rolável.
+ * Herda automaticamente o layout admin com Header e Sidebar globais.
+ * 
  * Estrutura:
- * 1. Título principal
+ * 1. Título principal: "Minhas Configurações"
  * 2. Perfil
  * 3. Autenticação (2FA)
  * 4. Aparência
@@ -23,11 +25,11 @@ import { DangerZoneSection } from "@/components/admin/settings/DangerZoneSection
  * 7. Permissões de Suporte
  * 8. Zona de Perigo
  * 
- * Separadores visuais entre cada seção para melhor organização.
+ * Cada seção é separada visualmente com componentes Separator.
  */
-export default function SettingsProfilePage() {
+export default function AdminProfileSettingsPage() {
   return (
-    <main className="space-y-8">
+    <main className="max-w-4xl mx-auto p-8 space-y-8">
       {/* Cabeçalho da Página */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Minhas Configurações</h1>
