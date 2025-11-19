@@ -32,7 +32,6 @@ interface AppLayoutClientProps {
 export function AppLayoutClient({
   children,
   workspaceSlug,
-  workspaceName,
   userName,
   userEmail,
   userImage,

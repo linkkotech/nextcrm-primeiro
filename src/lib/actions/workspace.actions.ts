@@ -36,7 +36,6 @@ const createWorkspaceSchema = z.object({
   planId: z.string().min(1, "A seleção de um plano é obrigatória."),
 });
 
-type CreateWorkspaceFormData = z.infer<typeof createWorkspaceSchema>;
 
 interface CreateWorkspaceResult {
   success: boolean;

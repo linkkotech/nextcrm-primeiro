@@ -1,0 +1,110 @@
+{
+  "common": {
+    "language": "Language",
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "last_7_days": "Last 7 days",
+    "in_progress": "In progress",
+    "this_month": "This month",
+    "compared_to_previous_month": "Compared to previous month"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "inbox": "Inbox",
+    "team": "Team",
+    "calendar": "Calendar",
+    "integrations": "Integrations",
+    "settings": "Settings",
+    "support": "Support",
+    "crm": "CRM",
+    "campaigns": "Campaigns",
+    "reports": "Reports",
+    "chat": "Chat",
+    "projects": "Projects",
+    "events": "Events",
+    "portfolio": "Portfolio",
+    "digital_profiles": "Digital Profiles",
+    "planning": "Planning",
+    "reviews": "Reviews"
+  },
+  "sidebar": {
+    "workspace_selector": "Select Workspace",
+    "main_menu": "Main Menu",
+    "secondary_menu": "Secondary Menu",
+    "apps": "Apps",
+    "storage": "Storage",
+    "storage_used": "{used} of {total} used",
+    "manage_storage": "Manage Storage"
+  },
+  "admin": {
+    "team": {
+      "title": "Team",
+      "description": "Manage platform administrative members",
+      "invite_member": "Invite Member",
+      "team_members": "Team Members",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions",
+      "no_members": "No team members found.",
+      "error": "Error loading team members. Please try again."
+    }
+  },
+  "workspace": {
+    "dashboard": {
+      "title": "Dashboard",
+      "welcome": "Welcome to your Workspace",
+      "overview": "Overview of statistics and activities in your workspace",
+      "activities": "Activities",
+      "recent_contacts": "New Contacts",
+      "pending_tasks": "Pending Tasks",
+      "active_projects": "Active Projects",
+      "growth": "Growth",
+      "recent_activity": "Recent Activity",
+      "next_steps": "Next Steps",
+      "add_contacts": "Add your first contacts",
+      "add_contacts_desc": "Start by adding customers and prospects to your database",
+      "create_project": "Create your first project",
+      "create_project_desc": "Organize your work into structured projects",
+      "configure_automations": "Configure automations",
+      "configure_automations_desc": "Automate repetitive tasks to increase productivity"
+    },
+    "team": {
+      "title": "Team",
+      "description": "Manage members in your workspace",
+      "invite_member": "Invite Member",
+      "team_members": "Team Members",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions",
+      "no_members": "No team members found.",
+      "error": "Error loading team members. Please try again."
+    }
+  },
+  "auth": {
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "forgot_password": "Forgot Password?",
+    "email": "Email",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "dont_have_account": "Don't have an account?",
+    "already_have_account": "Already have an account?",
+    "back_to_signin": "Back to Sign In"
+  }
+}

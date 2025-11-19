@@ -54,7 +54,7 @@ interface PlanData {
   price: number;
   userLimit: number;
   features: string[];
-  isActive: boolean;
+  isActive?: boolean;
   users?: number;
 }
 
@@ -100,9 +100,9 @@ function CreatePlanForm({
       form.reset({
         name: initialData.name || "",
         description: initialData.description || "",
-        operationMode: initialData.operationMode || "Comercial",
-        subscriptionType: initialData.subscriptionType || "Recorrente",
-        billingCycle: initialData.billingCycle || "Monthly",
+        operationMode: (initialData.operationMode || "Comercial") as "Comercial" | "RedeApoio" | "Hibrido",
+        subscriptionType: (initialData.subscriptionType || "Recorrente") as "Recorrente" | "Contrato",
+        billingCycle: (initialData.billingCycle || "Monthly") as "Monthly" | "Semiannual" | "Yearly" | "OneTime",
         price: Number(initialData.price) || 0,
         userLimit: Number(initialData.userLimit || initialData.users) || 1,
         features: Array.isArray(initialData.features) ? initialData.features : [],
@@ -425,7 +425,7 @@ export function CreatePlanDialog({
     setIsLoading(true);
     try {
       let result;
-      if (isEditMode && initialData) {
+      if (isEditMode && initialData?.id) {
         // Chamar updatePlan server action
         result = await updatePlan(initialData.id, data);
         if (result.success) {

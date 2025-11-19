@@ -20,11 +20,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { signupSchema, type SignupInput } from "@/schemas/auth.schemas"
 import { signupAction } from "@/lib/actions/auth.actions"
 
-interface SignupFormProps {
-  // availablePlans removido - plano será selecionado após criar conta
-}
-
-export function SignupForm({ availablePlans }: SignupFormProps) {
+export function SignupForm() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)

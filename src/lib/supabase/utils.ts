@@ -61,7 +61,7 @@ export async function createServerClient(
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options as CookieOptions)
             )
-          } catch (error) {
+          } catch {
             /**
              * setAll pode ser chamado de um Server Component durante renderização
              * Neste caso, não é possível modificar headers (erro silencioso é esperado)

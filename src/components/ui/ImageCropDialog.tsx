@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
@@ -146,6 +147,8 @@ const CustomImageCropContent = forwardRef<CustomImageCropContentRef, {
         ruleOfThirds
       >
         {imgSrc && (
+          // eslint-disable-next-line @next/next/no-img-element
+          // Using <img> instead of <Image> as required by react-image-crop library
           <img
             alt="crop"
             className="max-h-[500px] w-auto"
@@ -314,9 +317,11 @@ export default function App() {
         {croppedImage && (
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Imagem Recortada</h2>
-            <img 
+            <Image 
               src={croppedImage} 
               alt="Cropped" 
+              width={400}
+              height={400}
               className="max-w-full rounded-lg border"
             />
           </div>

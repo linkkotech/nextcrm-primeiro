@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslations, useLocale } from "next-intl"
 import {
   Command,
   LayoutDashboard,
@@ -8,7 +9,6 @@ import {
   Package,
   CreditCard,
   UsersRound,
-  FileText,
   Mail,
   Building2,
   Blocks,
@@ -29,32 +29,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-const data = {
-  navMain: [
-    { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, isActive: true },
-    { title: "Clientes", url: "/admin/clients", icon: Users },
-    {
-      title: "Planos",
-      url: "/admin/plans",
-      icon: Package,
-      items: [
-        { title: "Produtos", url: "/admin/products" },
-        { title: "Cupons", url: "/admin/coupons" },
-        { title: "Pedidos", url: "/admin/orders" },
-      ],
-    },
-    { title: "Pagamentos", url: "/admin/payments", icon: CreditCard },
-    { title: "Equipe", url: "/admin/team", icon: UsersRound },
-    { title: "Templates Digitais", url: "/admin/digital-templates", icon: FileText },
-    { title: "Templates de E-mail", url: "/admin/email-templates", icon: Mail },
-    { title: "Usuários Workspace", url: "/admin/workspace-users", icon: Building2 },
-    { title: "Módulos", url: "/admin/modules", icon: Blocks },
-  ],
-  navSecondary: [
-    { title: "Suporte", url: "/admin/support", icon: LifeBuoy },
-  ],
-}
-
+/**
+ * Admin Sidebar com suporte a i18n
+ * 
+ * Renderiza navegação administrativo com traduções dinâmicas
+ * baseado no locale da requisição.
+ * 
+ * Integrado com next-intl para suporte a pt/en/es.
+ */
 interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userName?: string | null
   userEmail?: string | null
@@ -62,10 +44,81 @@ interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AdminSidebar({ userName, userEmail, userImage, ...props }: AdminSidebarProps) {
+  const t = useTranslations()
+  const locale = useLocale()
+  
   const user = {
     name: userName || "Admin User",
     email: userEmail || "admin@example.com",
     avatar: userImage || "/avatars/shadcn.jpg",
+  }
+
+  const data = {
+    navMain: [
+      { 
+        title: t("navigation.dashboard"), 
+        url: `/${locale}/admin/dashboard`, 
+        icon: LayoutDashboard, 
+        isActive: true 
+      },
+      { 
+        title: "Clientes", 
+        url: `/${locale}/admin/clients`, 
+        icon: Users 
+      },
+      { 
+        title: t("navigation.team"), 
+        url: `/${locale}/admin/team`, 
+        icon: UsersRound 
+      },
+      {
+        title: "Planos",
+        url: `/${locale}/admin/plans`,
+        icon: Package,
+        items: [
+          { title: "Produtos", url: `/${locale}/admin/products` },
+          { title: "Cupons", url: `/${locale}/admin/coupons` },
+          { title: "Pedidos", url: `/${locale}/admin/orders` },
+        ],
+      },
+      { 
+        title: "Pagamentos", 
+        url: `/${locale}/admin/payments`, 
+        icon: CreditCard 
+      },
+      // { 
+      //   title: "Templates Digitais", 
+      //   url: `/${locale}/admin/digital-templates`, 
+      //   icon: FileText 
+      // },
+      { 
+        title: "Templates de E-mail", 
+        url: `/${locale}/admin/email-templates`, 
+        icon: Mail 
+      },
+      { 
+        title: "Usuários Workspace", 
+        url: `/${locale}/admin/workspace-users`, 
+        icon: Building2 
+      },
+      { 
+        title: "Módulos", 
+        url: `/${locale}/admin/modules`, 
+        icon: Blocks 
+      },
+    ],
+    navSecondary: [
+      { 
+        title: t("navigation.support"), 
+        url: `/${locale}/admin/support`, 
+        icon: LifeBuoy 
+      },
+      { 
+        title: "Configurações", 
+        url: `/${locale}/admin/settings`, 
+        icon: Settings2 
+      },
+    ],
   }
 
   return (
@@ -74,7 +127,7 @@ export function AdminSidebar({ userName, userEmail, userImage, ...props }: Admin
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href={`/${locale}/admin`}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>

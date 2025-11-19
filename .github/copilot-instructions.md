@@ -108,7 +108,92 @@ All data is isolated via workspaceId at the Prisma model level. **Critical:** Ev
 -   **WorkspaceRoles** (workspace-level): work\_admin, work\_manager, work\_user
 
 * * *
+### [NOVO] Padrão de Organização Server/Client (Regra Estrita)
 
+Para todas as páginas complexas que requerem busca de dados e interatividade do lado do cliente, siga obrigatoriamente este padrão de separação de arquivos:
+
+    page.tsx (Server Component):
+
+        Responsabilidades:
+
+            Ser async.
+
+            Buscar todos os dados necessários do banco de dados (Prisma).
+
+            Buscar todas as traduções necessárias (getTranslations).
+
+            Conter toda a lógica de segurança e validação de acesso.
+
+            Renderizar o componente cliente correspondente, passando os dados e traduções como props.
+
+        NÃO PODE: Conter hooks de cliente (useState, useEffect, useRouter, etc.).
+
+    [nome-da-pagina]-client.tsx (Client Component):
+
+        Responsabilidades:
+
+            Ter a diretiva 'use client' no topo.
+
+            Receber dados e traduções via props do page.tsx.
+
+            Conter toda a lógica de interatividade: useState, useEffect, useRouter, react-hook-form, onClick handlers, etc.
+
+            Renderizar a UI e os componentes do shadcn/ui.
+
+        NÃO PODE: Fazer buscas diretas no banco de dados.
+
+Exemplo de Estrutura de Arquivos:
+code Code
+    
+📁 src/app/[locale]/app/[workspaceSlug]/dashboard/
+├── page.tsx              ← Server Component (busca dados, traduções)
+└── dashboard-client.tsx  ← Client Component (interatividade, hooks)
+ 
+### [NOVO] Padrão de Organização de Módulos e Imports (Barrel Exports)
+
+Para manter o código limpo e as importações concisas, adotaremos o padrão de "barrel exports" (index.ts) em diretórios específicos.
+O Que São Barrel Exports?
+
+São arquivos index.ts que agregam e re-exportam os módulos de um diretório, permitindo importações agrupadas em vez de múltiplas importações de caminhos diferentes.
+
+Exemplo:
+code TypeScript
+    
+// ANTES
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Dialog } from '@/components/ui/dialog';
+
+// DEPOIS (com barrel export)
+import { Button, Card, Dialog } from '@/components/ui';
+
+Quando Usar (Regra Estrita):
+
+✅ USE BARREL EXPORTS para:
+
+    Componentes de UI compartilhados: src/components/ui/
+
+    Utilitários e Helpers: src/lib/
+
+    Tipos Compartilhados: src/types/
+
+❌ NÃO USE BARREL EXPORTS para:
+
+    Server Actions: Mantenha as importações explícitas (ex: import { createWorkspace } from '@/services/workspace.actions'). Isso evita que o código do lado do servidor seja acidentalmente incluído em bundles do lado do cliente.
+
+    Arquivos de Página/Layout (app/): O roteamento do Next.js já cuida disso.
+
+    Módulos Muito Grandes: Se um diretório contiver dezenas de arquivos, um barrel export pode impactar negativamente o "tree-shaking" em alguns cenários. Use com bom senso.
+
+Melhores Práticas de Implementação:
+
+    Organize por Categoria: Dentro do index.ts, agrupe as exportações com comentários.
+
+    Use export type: Ao re-exportar tipos, use a sintaxe export type { ... } from './file'. Isso garante "type-only imports" e melhora a otimização.
+
+    Mantenha a Ordem: Se possível, mantenha as exportações organizadas em ordem alfabética para facilitar a localização.
+
+    Documente: Adicione um JSDoc no topo do index.ts para explicar seu propósito. Ex: /** @file Barrel export for all UI components. */.
 ## 📂 Key Files & Patterns
 
 ### Database Configuration

@@ -1,6 +1,15 @@
+/**
+ * Layout ROOT - Sem locale
+ * 
+ * Este é o layout mais externo. O Next.js processará qualquer rota como:
+ * /[locale]/...
+ * 
+ * Este layout apenas configura HTML global, fonts e providers.
+ * O layout específico do locale é [locale]/layout.tsx
+ */
+
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
-import { RouteProvider } from "@/components/providers/route-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import "@/styles/globals.css";
@@ -26,14 +35,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${outfit.variable} scroll-smooth`} suppressHydrationWarning>
+    <html className={`${outfit.variable} scroll-smooth`} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
-        <RouteProvider>
-          <ThemeProvider defaultTheme="light" enableSystem>
-            {children}
-            <Toaster richColors position="top-center" closeButton />
-          </ThemeProvider>
-        </RouteProvider>
+        <ThemeProvider defaultTheme="light" enableSystem>
+          {children}
+          <Toaster richColors position="top-center" closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import {
   Command,
-  CommandDialog as DialogCommand,
   CommandEmpty,
   CommandGroup,
   CommandInput,
@@ -20,8 +19,6 @@ import {
   Package,
   CreditCard,
   UsersRound,
-  FileText,
-  Mail,
   Building2,
   Settings,
   LogOut,
@@ -105,13 +102,13 @@ export function CommandDialog({ isOpen, setIsOpen }: CommandDialogProps) {
                 <UsersRound className="mr-2 h-4 w-4" />
                 <span>Equipe</span>
               </CommandItem>
-              <CommandItem
+              {/* <CommandItem
                 onSelect={() => navigate("/admin/digital-templates")}
                 value="templates-digitais"
               >
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Templates Digitais</span>
-              </CommandItem>
+              </CommandItem> */}
               <CommandItem
                 onSelect={() => navigate("/admin/workspace-users")}
                 value="usuarios-workspace"

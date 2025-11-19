@@ -1,0 +1,110 @@
+{
+  "common": {
+    "language": "Idioma",
+    "portuguese": "Português",
+    "english": "English",
+    "spanish": "Español",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Deletar",
+    "edit": "Editar",
+    "create": "Criar",
+    "close": "Fechar",
+    "logout": "Sair",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "last_7_days": "Últimos 7 dias",
+    "in_progress": "Em progresso",
+    "this_month": "Este mês",
+    "compared_to_previous_month": "Comparado ao mês anterior"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tasks": "Tarefas",
+    "inbox": "Caixa de Entrada",
+    "team": "Equipe",
+    "calendar": "Calendário",
+    "integrations": "Integrações",
+    "settings": "Configurações",
+    "support": "Suporte",
+    "crm": "CRM",
+    "campaigns": "Campanhas",
+    "reports": "Relatórios",
+    "chat": "Chat",
+    "projects": "Projetos",
+    "events": "Eventos",
+    "portfolio": "Portfolio",
+    "digital_profiles": "Perfis Digitais",
+    "planning": "Planning",
+    "reviews": "Reviews"
+  },
+  "sidebar": {
+    "workspace_selector": "Selecionar Workspace",
+    "main_menu": "Menu Principal",
+    "secondary_menu": "Menu Secundário",
+    "apps": "Apps",
+    "storage": "Armazenamento",
+    "storage_used": "{used} de {total} utilizado",
+    "manage_storage": "Gerenciar Armazenamento"
+  },
+  "admin": {
+    "team": {
+      "title": "Equipe",
+      "description": "Gerencie os membros administrativos da plataforma",
+      "invite_member": "Convidar Membro",
+      "team_members": "Membros da Equipe",
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "actions": "Ações",
+      "no_members": "Nenhum membro da equipe encontrado.",
+      "error": "Erro ao carregar membros da equipe. Tente novamente."
+    }
+  },
+  "workspace": {
+    "dashboard": {
+      "title": "Dashboard",
+      "welcome": "Bem-vindo ao seu Workspace",
+      "overview": "Visão geral das estatísticas e atividades do workspace",
+      "activities": "Atividades",
+      "recent_contacts": "Novos Contatos",
+      "pending_tasks": "Tarefas Pendentes",
+      "active_projects": "Projetos Ativos",
+      "growth": "Crescimento",
+      "recent_activity": "Atividade Recente",
+      "next_steps": "Próximos Passos",
+      "add_contacts": "Adicione seus primeiros contatos",
+      "add_contacts_desc": "Comece adicionando clientes e prospects à sua base",
+      "create_project": "Crie seu primeiro projeto",
+      "create_project_desc": "Organize seu trabalho em projetos estruturados",
+      "configure_automations": "Configure automações",
+      "configure_automations_desc": "Automatize tarefas repetitivas para aumentar produtividade"
+    },
+    "team": {
+      "title": "Equipe",
+      "description": "Gerencie os membros do seu workspace",
+      "invite_member": "Convidar Membro",
+      "team_members": "Membros da Equipe",
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "actions": "Ações",
+      "no_members": "Nenhum membro encontrado.",
+      "error": "Erro ao carregar membros da equipe. Tente novamente."
+    }
+  },
+  "auth": {
+    "sign_in": "Entrar",
+    "sign_up": "Registrar",
+    "forgot_password": "Esqueceu a Senha?",
+    "email": "Email",
+    "password": "Senha",
+    "remember_me": "Lembrar de mim",
+    "dont_have_account": "Não tem uma conta?",
+    "already_have_account": "Já tem uma conta?",
+    "back_to_signin": "Voltar para Login"
+  }
+}

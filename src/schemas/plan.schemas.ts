@@ -50,7 +50,7 @@ export const createPlanSchema = z.object({
     .min(1, "Selecione pelo menos uma feature")
     .max(10, "Não pode exceder 10 features"),
   
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 }).refine(
   (data) => {
     // billingCycle é obrigatório para qualquer tipo de assinatura

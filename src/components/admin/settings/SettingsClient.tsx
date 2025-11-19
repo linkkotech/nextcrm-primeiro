@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { ProfileSection } from "./ProfileSection";
 import { AuthenticationSection } from "./AuthenticationSection";
 import { AppearanceSection } from "./AppearanceSection";
@@ -9,15 +8,6 @@ import { LanguageRegionSection } from "./LanguageRegionSection";
 import { DateTimeSection } from "./DateTimeSection";
 import { SupportPermissionsSection } from "./SupportPermissionsSection";
 import { DangerZoneSection } from "./DangerZoneSection";
-
-interface SettingsClientProps {
-  user: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-  };
-}
 
 type SettingsSection = "profile" | "auth" | "appearance" | "language" | "datetime" | "support" | "danger";
 
@@ -35,7 +25,7 @@ const MENU_ITEMS: { id: SettingsSection; label: string }[] = [
  * Componente Client para a página de Configurações
  * Gerencia o estado da seção ativa e renderiza o layout de duas colunas
  */
-export function SettingsClient({ user }: SettingsClientProps) {
+export function SettingsClient() {
   const [activeSection, setActiveSection] = useState<SettingsSection>("profile");
 
   const renderSection = () => {
