@@ -41,6 +41,11 @@ enum SubscriptionStatus {
   Expired
 }
 
+enum AddressType {
+  comercial
+  residencial
+}
+
 // ===================================
 // MODELOS DE AUTENTICAÇÃO E CORE
 // ===================================
@@ -59,6 +64,9 @@ model User {
   workspaceMemberships WorkspaceMember[]
   createdTemplates     DigitalTemplate[] @relation("TemplateCreator")
   digitalProfiles      DigitalProfile[]
+  createdAddresses     Address[]
+  adminOfUnits         Unit[]            @relation("UnitAdmin")
+  unitMemberships      UnitMember[]
   preferences          Json?             // Stores user UI preferences: theme, language, timezone, dateFormat, timeFormat, highContrast, twoFactorMethod
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
@@ -93,6 +101,8 @@ model Workspace {
   stripeCurrentPeriodEnd DateTime? @map("stripe_current_period_end")
 
   // Relações com todos os módulos
+  units            Unit[]
+  addresses        Address[]
   contacts         Contact[]
   tasks            Task[]
   projects         Project[]
@@ -124,6 +134,92 @@ model WorkspaceMember {
   @@unique([userId, workspaceId])
 }
 
+model Address {
+  id          String   @id @default(cuid())
+  name        String   // Nome interno para o endereço
+  label       String?  // Ex: "Matriz", "Filial"
+
+  street      String
+  number      String
+  complement  String?
+  district    String
+  city        String
+  stateCode   String   // UF de 2 letras
+  country     String
+  postalCode  String
+
+  latitude    Float?
+  longitude   Float?
+  // Para buscas geoespaciais avançadas (requer PostGIS no PostgreSQL)
+  // Ex: GEOGRAPHY(Point, 4326)
+  geoPoint    Unsupported("geography(Point, 4326)")?
+
+  type        AddressType // Enum: 'comercial', 'residencial'
+  isActive    Boolean  @default(true)
+
+  // Relação Multi-Tenant
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Relação com o criador
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  units       Unit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+}
+
+
+
+model Unit {
+  id          String   @id @default(cuid())
+  name        String
+
+  isActive    Boolean  @default(true)
+
+  // Relação Multi-Tenant (a qual Workspace a Unidade pertence)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Relação com o Template
+  templateId  String?
+  template    DigitalTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  // Relação com o Endereço
+  addressId   String?
+  address     Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
+  // Relação com o Usuário Admin da Unidade
+  unitAdminId String?
+  unitAdmin   User?    @relation("UnitAdmin", fields: [unitAdminId], references: [id], onDelete: SetNull)
+
+  // Relação com os membros da Unidade (um para muitos)
+  members     UnitMember[]
+
+  // O campo 'Users Actives' será calculado dinamicamente com uma query (ex: prisma.unitMember.count(...))
+  // e não armazenado aqui para evitar inconsistência de dados.
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId])
+}
+
+model UnitMember {
+  id     String @id @default(cuid())
+  
+  unitId String
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([unitId, userId])
+}
+
 // ===================================
 // MODELOS DE TEMPLATES DIGITAIS
 // ===================================
@@ -139,6 +235,7 @@ model DigitalTemplate {
   createdByUserId String
   createdByUser   User              @relation("TemplateCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   usedInProfiles  DigitalProfile[]
+  units           Unit[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 

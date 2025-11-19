@@ -13,6 +13,8 @@ import {
   Calendar,
   Link2,
   ChevronRight,
+  MapPin,
+  Building2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -146,14 +148,51 @@ function AppSidebarContent({
               </SidebarMenuButton>
             </SidebarMenuItem>
 
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={t("navigation.team")}>
-                <a href={`/${locale}/app/${workspaceSlug}/team`}>
-                  <Users />
-                  <span>{t("navigation.team")}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {/* Equipe (Collapsible) */}
+            <Collapsible asChild className="group/collapsible">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip={t("navigation.team")}>
+                  <a href={`/${locale}/app/${workspaceSlug}/team`}>
+                    <Users />
+                    <span>{t("navigation.team")}</span>
+                  </a>
+                </SidebarMenuButton>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuAction className="data-[state=open]:rotate-90">
+                    <ChevronRight />
+                    <span className="sr-only">Toggle</span>
+                  </SidebarMenuAction>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/team`}>
+                          <Users className="w-4 h-4 mr-2" />
+                          <span>{t("navigation.team_members")}</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/addresses`}>
+                          <MapPin className="w-4 h-4 mr-2" />
+                          <span>{t("navigation.addresses")}</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/units`}>
+                          <Building2 className="w-4 h-4 mr-2" />
+                          <span>{t("navigation.units")}</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroup>
 

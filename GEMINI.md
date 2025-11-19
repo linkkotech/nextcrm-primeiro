@@ -1,103 +1,314 @@
-# Gerente de Projeto Técnico (GPTM)
+# Prompt copilot
 
-Você é o Gerente de Projeto Técnico (GPTM).
-Seu papel é compreender profundamente o código atual, discutir features, bugs, refatorações e integrações, e gerar prompts estruturados e prontos para execução no GitHub Copilot (ou outro executor de código).
+## Regras de Saída e Criação de Arquivos (REGRA ESTRITA)
 
-Você tem acesso a todos os arquivos e contexto do projeto (pasta aberta no VS Code) e deve se comportar como um gerente sênior que coordena tarefas com clareza técnica e visão de produto.
+-   **PROIBIÇÃO DE ARQUIVOS DE RELATÓRIO:** **NÃO CRIE** arquivos de resumo, log, checklist, guia ou qualquer outro tipo de arquivo Markdown (.md) para documentar suas ações ou progresso. Seu trabalho é gerar CÓDIGO e COMANDOS, não documentação sobre seu próprio trabalho.
+-   **Comunicação Concisa:** Comunique o progresso de forma direta e objetiva no chat. Exemplo: "Plano aprovado. Gerando o código para a Etapa 1...".
+-   **Exceção para Documentação:** A ÚNICA exceção para criar arquivos .md é se eu solicitar explicitamente a criação de um documento de projeto, que deve ser salvo exclusivamente na pasta project-md/.
 
-## Diretrizes gerais:
+## Fluxo de Trabalho e Interação
 
-Sempre que eu mencionar uma feature, ajuste, refatoração ou bug, você deve:
+-   **Plano de Execução OBRIGATÓRIO:** Para qualquer tarefa, sua PRIMEIRA resposta DEVE ser um plano de execução objetivo e conciso em formato de lista. Não use formatação de arquivo Markdown nem prosa excessiva. Apenas as etapas técnicas.
+-   **Aprovação Necessária:** NUNCA gere código ou execute comandos antes que eu aprove seu plano com uma mensagem explícita como "aprovado" ou "pode seguir".
 
-- Fazer perguntas técnicas ou estratégicas (se necessário) para entender o escopo.
-- Gerar um plano de execução objetivo e em etapas.
-- Em seguida, gerar um prompt final no formato abaixo (para o Copilot).
+* * *
 
-Você nunca gera o código diretamente.
-Seu papel é analisar, estruturar e preparar o comando perfeito para que o Copilot execute com precisão.
+## **\[NOVO\] Regras de Pesquisa e Componentização**
 
-Cada entrega deve incluir:
+-   **ACESSO AO MCP SERVER:** **Você tem permissão para acessar o MCP (Master Control Program) Server da Context7.** Utilize este recurso para buscar informações atualizadas sobre as stacks que estamos usando (Next.js, Prisma, Supabase, etc.), seja para implementar novas funcionalidades ou para corrigir bugs. **Priorize sempre a documentação e as melhores práticas mais recentes obtidas através do MCP Server.**
+-   **ESTRATÉGIA DE COMPONENTES shadcn/ui:** Ao precisar de um novo componente de UI (ex: seletor de data, carrossel):
+    1.  **SEMPRE** verifique primeiro se um componente pronto existe no site oficial do shadcn/ui. Use-o como modelo principal.
+    2.  **SE NÃO ENCONTRAR**, sua próxima ação é **PERGUNTAR**. Apresente alternativas no seu plano de execução, como "O componente X não existe no shadcn/ui. Sugiro usar a biblioteca Y, ou podemos desenvolvê-lo do zero. Qual você prefere?".
+    3.  **NUNCA** desenvolva um componente complexo do zero sem minha aprovação explícita.
 
-- Análise e contexto técnico.
-- Riscos ou dependências.
-- Prompt Copilot pronto para colar.
+* * *
 
-## Formato padrão do prompt para o Copilot
+## **\[REFORÇADO\] REGRAS DE DOCUMENTAÇÃO DE CÓDIGO (OBRIGATÓRIO)**
 
-Quando for gerar o prompt final, use exatamente este formato:
+A documentação do código é **obrigatória** para garantir a manutenibilidade do projeto. Siga estas regras estritamente.
 
----
+✅ **DOCUMENTE (não é óbvio):**
 
-**Chat Prompt – Neo-Coder**
+-   Funções/métodos com lógica de negócio complexa
+-   Server Actions e suas validações
+-   Algoritmos não triviais
+-   Funções com side effects (mutações, chamadas de API)
+-   Tipos TypeScript complexos ou genéricos
+-   Regras de autorização/permissões
+-   Transformações de dados não óbvias
+-   Edge cases e comportamentos especiais
+-   Parâmetros com valores especiais ou restrições
 
-**Assunto/Módulo:** [Nome claro e conciso do módulo ou tarefa]
+❌ **NÃO DOCUMENTE (óbvio):**
 
-**Contexto:**
-[Explique o "porquê" — motivo técnico, problema atual ou necessidade de negócio.
-Inclua dependências relevantes, versões e impacto esperado.]
+-   Getters/setters simples
+-   Componentes React básicos (sem lógica)
+-   Funções auto-explicativas (ex: getUserById)
+-   Tipos TypeScript simples
+-   Imports/exports
+-   Variáveis com nomes descritivos
 
-**Objetivo:**
-[Defina claramente o que deve ser entregue, o que significa "feito".]
+### **FORMATO:**
 
-**Requisitos Técnicos**
+Para funções/métodos complexos:
 
-**Estrutura de Arquivos:**
-[Liste caminhos e nomes de arquivos a criar/modificar.]
+code TypeScript
 
-**Dependências/Comandos:**
-[Liste pacotes, migrations, comandos npm/yarn etc.]
+    `/**
+    
 
-**Lógica Específica:**
-[Descreva assinaturas de funções, hooks, contextos, server actions etc.]
+-   \[Breve descrição do PROPÓSITO, não do que faz\]
+-     
+    
+-   @example
+-     
+    
+-   // Caso de uso real
+-     
+    
+-     
+    
+-   @throws {Error} \[Quando e por quê\]
+-   @returns \[O que retorna e em que cenários\] \*/\`
 
-**Requisitos de UI/UX (opcional):**
-[Detalhe layout, componentes e comportamento visual, se aplicável.]
+Para comportamentos especiais:
 
-**Minha Solicitação**
+// IMPORTANTE: \[Explicação do por quê isso é necessário\]
 
-Por favor, apresente um plano de execução objetivo e em etapas para realizar esta tarefa.
-O plano deve cobrir:
+Para edge cases:
 
-- [Ponto 1 relevante, ex: atualização de rotas ou hooks]
-- [Ponto 2 relevante, ex: criação de componente ou schema]
-- [etc.]
+// EDGE CASE: \[Situação específica que precisa dessa lógica\]
 
-Após a aprovação do plano, o executor (Copilot) poderá gerar o código completo para todos os arquivos.
+### **AÇÃO:**
 
----
+A partir de agora, **toda nova função ou lógica complexa que você criar DEVE seguir estas regras de documentação**. Para o código existente, percorra os arquivos em src/ e adicione documentação gradualmente, priorizando:
 
-## Exemplo de uso rápido
+1.  Server Actions (src/actions/ ou src/services/)
+2.  Middleware (src/middleware.ts)
+3.  Utilitários da lib (src/lib/)
+4.  Schemas Zod complexos (src/schemas/)
 
-Se você disser ao Gemini:
+* * *
 
-"Temos um bug no hook useAuth. Às vezes o usuário não é redirecionado após login. Gere um prompt para o Copilot corrigir isso."
+## 🏗️ Architecture Overview
 
-Ele deve responder com algo assim:
+### Multi-Tenant Isolation Strategy
 
----
+All data is isolated via workspaceId at the Prisma model level. **Critical:** Every database query must filter by the requesting user's workspace to prevent data leakage. **Exception:** super\_admin and admin roles can operate with workspaceId: null for global templates.
 
-**Chat Prompt – Neo-Coder**
+### Three Application Zones
 
-**Assunto/Módulo:** Olá, Copilot! Precisamos fazer uma Correção de redirecionamento no hook useAuth.
+1.  **src/app/(auth)** - Public auth flows
+2.  **src/app/admin** - Platform admin area (requires admin roles)
+3.  **src/app/app/\[workspaceSlug\]** - Multi-tenant user workspace
 
-**Contexto:** O hook atual depende do router.push, mas a função é chamada antes do useEffect, causando race condition.
+### Role Architecture
 
-**Objetivo:** Garantir redirecionamento estável após login, aguardando session ser carregada.
+-   **AdminRoles** (platform-level): super\_admin, admin, manager
+-   **WorkspaceRoles** (workspace-level): work\_admin, work\_manager, work\_user
 
-**Requisitos Técnicos**
+* * *
+### [NOVO] Padrão de Organização Server/Client (Regra Estrita)
 
-- Editar src/hooks/useAuth.ts.
-- Usar useEffect com dependência session.
-- Adicionar fallback de loading antes do redirecionamento.
+Para todas as páginas complexas que requerem busca de dados e interatividade do lado do cliente, siga obrigatoriamente este padrão de separação de arquivos:
 
-## Minha Solicitação
+    page.tsx (Server Component):
 
-Por favor, apresente um plano de execução em etapas para corrigir o redirecionamento, garantindo:
+        Responsabilidades:
 
-- Sincronização entre session e router.
-- Mensagem de loading adequada.
-- Teste manual após login.
+            Ser async.
 
-## Minha Solicitação Final (importante)
+            Buscar todos os dados necessários do banco de dados (Prisma).
 
-- Após a minha aprovação do plano, você poderá executar os comandos necessários e gerar o código corrigido para todos os arquivos afetados.
+            Buscar todas as traduções necessárias (getTranslations).
+
+            Conter toda a lógica de segurança e validação de acesso.
+
+            Renderizar o componente cliente correspondente, passando os dados e traduções como props.
+
+        NÃO PODE: Conter hooks de cliente (useState, useEffect, useRouter, etc.).
+
+    [nome-da-pagina]-client.tsx (Client Component):
+
+        Responsabilidades:
+
+            Ter a diretiva 'use client' no topo.
+
+            Receber dados e traduções via props do page.tsx.
+
+            Conter toda a lógica de interatividade: useState, useEffect, useRouter, react-hook-form, onClick handlers, etc.
+
+            Renderizar a UI e os componentes do shadcn/ui.
+
+        NÃO PODE: Fazer buscas diretas no banco de dados.
+
+Exemplo de Estrutura de Arquivos:
+code Code
+    
+📁 src/app/[locale]/app/[workspaceSlug]/dashboard/
+├── page.tsx              ← Server Component (busca dados, traduções)
+└── dashboard-client.tsx  ← Client Component (interatividade, hooks)
+ 
+### [NOVO] Padrão de Organização de Módulos e Imports (Barrel Exports)
+
+Para manter o código limpo e as importações concisas, adotaremos o padrão de "barrel exports" (index.ts) em diretórios específicos.
+O Que São Barrel Exports?
+
+São arquivos index.ts que agregam e re-exportam os módulos de um diretório, permitindo importações agrupadas em vez de múltiplas importações de caminhos diferentes.
+
+Exemplo:
+code TypeScript
+    
+// ANTES
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Dialog } from '@/components/ui/dialog';
+
+// DEPOIS (com barrel export)
+import { Button, Card, Dialog } from '@/components/ui';
+
+Quando Usar (Regra Estrita):
+
+✅ USE BARREL EXPORTS para:
+
+    Componentes de UI compartilhados: src/components/ui/
+
+    Utilitários e Helpers: src/lib/
+
+    Tipos Compartilhados: src/types/
+
+❌ NÃO USE BARREL EXPORTS para:
+
+    Server Actions: Mantenha as importações explícitas (ex: import { createWorkspace } from '@/services/workspace.actions'). Isso evita que o código do lado do servidor seja acidentalmente incluído em bundles do lado do cliente.
+
+    Arquivos de Página/Layout (app/): O roteamento do Next.js já cuida disso.
+
+    Módulos Muito Grandes: Se um diretório contiver dezenas de arquivos, um barrel export pode impactar negativamente o "tree-shaking" em alguns cenários. Use com bom senso.
+
+Melhores Práticas de Implementação:
+
+    Organize por Categoria: Dentro do index.ts, agrupe as exportações com comentários.
+
+    Use export type: Ao re-exportar tipos, use a sintaxe export type { ... } from './file'. Isso garante "type-only imports" e melhora a otimização.
+
+    Mantenha a Ordem: Se possível, mantenha as exportações organizadas em ordem alfabética para facilitar a localização.
+
+    Documente: Adicione um JSDoc no topo do index.ts para explicar seu propósito. Ex: /** @file Barrel export for all UI components. */.
+## 📂 Key Files & Patterns
+
+### Database Configuration
+
+-   **prisma/schema.prisma** - Source of truth for models.
+-   **src/lib/prisma.ts** - Singleton pattern. Always import from here.
+-   **prisma/seed.ts** - Bootstraps roles.
+
+### Authentication & Session
+
+-   **src/middleware.ts** - Refreshes session, protects routes.
+-   **src/lib/session.ts** - Contains getAuthSession() to safely get current user + roles.
+-   **src/services/\*.actions.ts** - Server actions for business logic.
+
+### **Components**
+
+-   _**`src/components/ui/`**_ - shadcn/ui components (Button, Card, Input, Label, Alert, Avatar, DropdownMenu).
+-   _**`src/components/blocks/`**_ - Form components (LoginForm, SignupForm, ForgotPasswordForm) - use react-hook-form + Zod.
+-   _**`src/components/admin/`**_ - Admin-specific (AdminHeader, SidebarNavigation, UserProfile).
+-   _**`src/components/application/app-navigation/`**_ - Workspace navigation (app-specific sidebar).
+
+**\### Forms & Validation**
+
+-   _**`src/schemas/auth.schemas.ts`**_ - Zod schemas for auth forms.
+-   Pattern: `useForm` + `zodResolver` + Server Actions (no tRPC/API routes for auth yet).
+
+* * *
+
+**\## 🔄 Critical Workflows**
+
+**\### Setup Database**
+
+    
+    npx prisma db push                    # Sync schema
+    
+    npx prisma db seed                    # Insert AdminRole & WorkspaceRole
+    
+    npx prisma studio                     # Verify data (port 5555)
+    
+    
+
+**\### Development Server**
+
+    
+    pnpm install                          # Install deps (postinstall runs prisma generate)
+    
+    pnpm dev                              # Start Next.js on port 3000
+    
+    
+
+**\### Add New Module**
+
+1.  Add model to `prisma/schema.prisma` with `workspaceId` FK (onDelete: Cascade).
+    
+2.  Create `src/app/app/[workspaceSlug]/[module]/page.tsx`.
+    
+3.  Run `npx prisma db push` to sync.
+    
+4.  Import `{ prisma }` from `@/lib/prisma` and filter by `workspaceId`.
+    
+
+* * *
+
+**\## ⚠️ Common Pitfalls**
+
+1.  ****Forgot workspace isolation**** - Every query needs `where: { workspaceId: ... }`.
+    
+2.  ****Direct PrismaClient import**** - Always use `import { prisma } from "@/lib/prisma"` (singleton).
+    
+3.  ****Supabase session stale**** - Middleware refreshes it, but verify in Server Actions.
+    
+4.  ****Role confusion**** - AdminRole is platform-level; WorkspaceRole is workspace-level.
+    
+5.  ****Component location**** - Forms with "use client" go in `blocks/`; UI primitives in `ui/`; layouts in `admin/` or `app/`.
+    
+
+* * *
+
+**\## 🛣️ Routing Conventions**
+
+-   _**Auth area:**_\* `/(auth)/sign-in`, `/(auth)/sign-up`, `/(auth)/forgot-password`
+-   _**Admin:**_\* `/admin`, `/admin/users`, `/admin/products`, `/admin/orders` (all require admin roles)
+-   _**Workspace:**_\* `/app/[workspaceSlug]/`, `/app/[workspaceSlug]/crm`, `/app/[workspaceSlug]/tasks` (multi-tenant)
+
+When adding new workspace routes, always extract `workspaceSlug` from params and validate user membership.
+
+* * *
+
+**\## 🎨 Styling Rules**
+
+-   _**Tailwind CSS 4**_\* (alpha) with CSS variables via `@tailwindcss/postcss`.
+-   _**shadcn/ui**_\* is the component library - use it for consistency.
+-   Global styles: `src/styles/globals.css`.
+-   Color scheme: Light mode default, dark mode support via `next-themes`.
+
+* * *
+
+**\## 🔐 Security Checklist**
+
+-   Filter all Prisma queries by `workspaceId`
+-   Validate user belongs to workspace before accessing `/app/[workspaceSlug]/*`
+-   Check AdminRole in middleware for `/admin/*` routes
+-   Never trust client-side role claims - always verify in Server Actions
+-   Use Supabase Row Level Security (RLS) once policies are defined
+
+* * *
+
+**\## 📚 Related Documentation**
+
+-   `DATABASE_SCHEMA.md` - ER diagram, all 17 models, constraints, indexes.
+-   `PRISMA_SETUP.md` - Singleton pattern, seed script, Stripe fields.
+-   `QUICK_START_SEED.md` - Step-by-step seed execution.
+
+* * *
+
+**\## ❓ Next Major Milestone**
+
+-   _**Server-side session extraction**_\* - Create `src/lib/session.ts` to safely get current user + workspace from middleware context. This unblocks auth-protected Server Actions across all modules.
