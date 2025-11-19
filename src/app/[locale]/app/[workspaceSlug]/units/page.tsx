@@ -1,5 +1,5 @@
 import React from "react";
-import { getWorkspaceUnits } from "@/actions/unit.actions";
+import { getWorkspaceUnits, getWorkspaceTemplatesAndAddresses } from "@/actions/unit.actions";
 import { UnitsClient } from "./units-client";
 
 interface PageProps {
@@ -11,11 +11,16 @@ interface PageProps {
 
 export default async function UnitsPage({ params }: PageProps) {
     const { workspaceSlug } = await params;
-    const units = await getWorkspaceUnits(workspaceSlug);
+    const [units, { templates, addresses }] = await Promise.all([
+        getWorkspaceUnits(workspaceSlug),
+        getWorkspaceTemplatesAndAddresses(workspaceSlug),
+    ]);
 
     return (
         <UnitsClient
             units={units}
+            templates={templates}
+            addresses={addresses}
             workspaceSlug={workspaceSlug}
         />
     );

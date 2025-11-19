@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { Unit } from "@prisma/client";
+import { Unit, Address, DigitalTemplate } from "@prisma/client";
 import { useHeader } from "@/context/HeaderContext";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -36,17 +36,20 @@ import {
 
 interface UnitsClientProps {
     units: Unit[];
+    templates: DigitalTemplate[];
+    addresses: Address[];
     workspaceSlug: string;
 }
 
 const CARDS_PER_PAGE = 5; // 5 units + 1 "New Unit" card = 6 items total
 
-export function UnitsClient({ units, workspaceSlug }: UnitsClientProps) {
+export function UnitsClient({ units, templates, addresses, workspaceSlug }: UnitsClientProps) {
     const t = useTranslations("units");
     const router = useRouter();
     const { setPrimaryTitle, setSecondaryHeaderContent } = useHeader();
     const [currentPage, setCurrentPage] = useState(1);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     const [selectedUnit, setSelectedUnit] = useState<Unit | undefined>(undefined);
 
     const itemsOnFirstPage = CARDS_PER_PAGE;
@@ -223,10 +226,36 @@ export function UnitsClient({ units, workspaceSlug }: UnitsClientProps) {
                     </DialogHeader>
                     <UnitForm
                         workspaceSlug={workspaceSlug}
+                        templates={templates}
+                        addresses={addresses}
                         initialData={selectedUnit}
                         onSuccess={handleSuccess}
                         onCancel={handleCancel}
+                        onOpenAddressModal={() => {
+                            setIsDialogOpen(false);
+                            setIsAddressModalOpen(true);
+                        }}
                     />
+                </DialogContent>
+            </Dialog>
+
+            {/* Address Modal (Placeholder) */}
+            <Dialog open={isAddressModalOpen} onOpenChange={setIsAddressModalOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Criar Novo Endereço</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-8 text-center">
+                        <p className="text-muted-foreground">
+                            Modal de criação de endereço será implementado aqui.
+                        </p>
+                        <Button
+                            className="mt-4"
+                            onClick={() => setIsAddressModalOpen(false)}
+                        >
+                            Fechar
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
         </>
