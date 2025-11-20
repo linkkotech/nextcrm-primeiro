@@ -149,7 +149,7 @@ function AppSidebarContent({
             </SidebarMenuItem>
 
             {/* Equipe (Collapsible) */}
-            <Collapsible asChild className="group/collapsible">
+            <Collapsible asChild defaultOpen className="group/collapsible">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip={t("navigation.team")}>
                   <a href={`/${locale}/app/${workspaceSlug}/team`}>
@@ -168,7 +168,6 @@ function AppSidebarContent({
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <a href={`/${locale}/app/${workspaceSlug}/team`}>
-                          <Users className="w-4 h-4 mr-2" />
                           <span>{t("navigation.team_members")}</span>
                         </a>
                       </SidebarMenuSubButton>
@@ -176,7 +175,6 @@ function AppSidebarContent({
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <a href={`/${locale}/app/${workspaceSlug}/addresses`}>
-                          <MapPin className="w-4 h-4 mr-2" />
                           <span>{t("navigation.addresses")}</span>
                         </a>
                       </SidebarMenuSubButton>
@@ -184,7 +182,6 @@ function AppSidebarContent({
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <a href={`/${locale}/app/${workspaceSlug}/units`}>
-                          <Building2 className="w-4 h-4 mr-2" />
                           <span>{t("navigation.units")}</span>
                         </a>
                       </SidebarMenuSubButton>
@@ -297,8 +294,29 @@ function AppSidebarContent({
                   <SidebarMenuSub>
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
-                        <a href={`/${locale}/app/${workspaceSlug}/tools/smart-cards`}>
-                          <span>Gerenciar Cartões</span>
+                        <a href={`/${locale}/app/${workspaceSlug}/tools/smart-cards/digital-profiles`}>
+                          <span>Perfis Digitais</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/tools/smart-cards/templates`}>
+                          <span>Templates</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/tools/smart-cards/google-wallet`}>
+                          <span>Google Wallet</span>
+                        </a>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <a href={`/${locale}/app/${workspaceSlug}/tools/smart-cards/nfc-devices`}>
+                          <span>Dispositivos NFC</span>
                         </a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>

@@ -34,10 +34,10 @@ import {
 import { createWorkspace } from "@/lib/actions/workspace.actions";
 
 // Zod Schema
-const createWorkspaceSchema = z.object({
-  workspaceName: z
+const createClientSchema = z.object({
+  organizationName: z
     .string()
-    .min(1, "Nome do workspace é obrigatório")
+    .min(1, "Nome da organização é obrigatório")
     .min(3, "Nome deve ter pelo menos 3 caracteres"),
   clientType: z.enum(["pf", "pj"], {
     errorMap: () => ({ message: "Selecione um tipo de cliente" }),
@@ -60,7 +60,7 @@ const createWorkspaceSchema = z.object({
   planId: z.string().min(1, "A seleção de um plano é obrigatória."),
 });
 
-type CreateWorkspaceFormData = z.infer<typeof createWorkspaceSchema>;
+type CreateClientFormData = z.infer<typeof createClientSchema>;
 
 interface Plan {
   id: string;
@@ -69,25 +69,25 @@ interface Plan {
   billingCycle?: string;
 }
 
-interface CreateWorkspaceFormProps {
-  onSubmit: (data: CreateWorkspaceFormData) => void;
+interface CreateClientFormProps {
+  onSubmit: (data: CreateClientFormData) => void;
   onCancel: () => void;
   availablePlans: Plan[];
 }
 
-function CreateWorkspaceForm({
+function CreateClientForm({
   onSubmit,
   onCancel,
   availablePlans,
-}: CreateWorkspaceFormProps) {
+}: CreateClientFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<CreateWorkspaceFormData>({
-    resolver: zodResolver(createWorkspaceSchema),
+  const form = useForm<CreateClientFormData>({
+    resolver: zodResolver(createClientSchema),
     defaultValues: {
-      workspaceName: "",
+      organizationName: "",
       clientType: "pj",
       document: "",
       adminName: "",
@@ -100,7 +100,7 @@ function CreateWorkspaceForm({
   const clientType = form.watch("clientType");
   const isPersonalClient = clientType === "pf";
 
-  const handleFormSubmit = async (data: CreateWorkspaceFormData) => {
+  const handleFormSubmit = async (data: CreateClientFormData) => {
     setError(null);
     
     startTransition(async () => {
@@ -127,14 +127,14 @@ function CreateWorkspaceForm({
 
         {/* Workspace Information */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold">Informações do Workspace</h3>
+          <h3 className="text-sm font-semibold">Informações do Cliente</h3>
 
           <FormField
             control={form.control}
-            name="workspaceName"
+            name="organizationName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome do Workspace *</FormLabel>
+                <FormLabel>Nome da Organização/Cliente *</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Ex: Acme Corporation"
@@ -142,6 +142,9 @@ function CreateWorkspaceForm({
                     {...field}
                   />
                 </FormControl>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Este nome será usado para criar a organização e o workspace inicial
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -334,8 +337,8 @@ export function CreateClientDialog({
   onOpenChange,
   availablePlans,
 }: CreateClientDialogProps) {
-  const handleSubmit = (data: CreateWorkspaceFormData) => {
-    console.log("Novo workspace:", data);
+  const handleSubmit = (data: CreateClientFormData) => {
+    console.log("Novo cliente:", data);
     onOpenChange(false);
   };
 
@@ -343,13 +346,13 @@ export function CreateClientDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Novo Workspace</DialogTitle>
+          <DialogTitle>Novo Cliente</DialogTitle>
           <DialogDescription>
-            Crie um novo workspace e configure o primeiro administrador
+            Crie uma nova organização com seu primeiro workspace e administrador
           </DialogDescription>
         </DialogHeader>
 
-        <CreateWorkspaceForm
+        <CreateClientForm
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
           availablePlans={availablePlans}

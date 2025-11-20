@@ -3,17 +3,18 @@
 import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getAuthSession } from "@/lib/session";
+import { generateSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 /**
- * Schema de validação para criação de workspace.
- * Inclui dados do workspace, administrador e plano de assinatura.
+ * Schema de validação para criação de cliente completo.
+ * Inclui dados da organização, workspace, administrador e plano de assinatura.
  */
-const createWorkspaceSchema = z.object({
-  workspaceName: z
+const createClientSchema = z.object({
+  organizationName: z
     .string()
-    .min(1, "Nome do workspace é obrigatório")
+    .min(1, "Nome da organização é obrigatório")
     .min(3, "Nome deve ter pelo menos 3 caracteres"),
   clientType: z.enum(["pf", "pj"], {
     errorMap: () => ({ message: "Selecione um tipo de cliente" }),
@@ -40,25 +41,32 @@ const createWorkspaceSchema = z.object({
 interface CreateWorkspaceResult {
   success: boolean;
   message: string;
+  organizationId?: string;
   workspaceId?: string;
   subscriptionId?: string;
   error?: string;
 }
 
 /**
- * Cria um novo cliente (usuário + workspace + assinatura) em uma transação atômica.
+ * Cria um novo cliente completo (Organization + Workspace + Admin User + Subscription)
+ * em uma transação atômica.
  *
- * Fluxo de 5 passos:
- * 1. Criar usuário no Supabase Auth
- * 2. Criar usuário na tabela User local (com supabase_user_id)
- * 3. Criar o Workspace (com ownerId do novo usuário)
- * 4. Criar a WorkspaceSubscription (vinculando ao plano)
- * 5. Criar WorkspaceMember (vinculando usuário ao workspace com role work_admin)
+ * Fluxo de 6 passos:
+ * 1. Upsert Organization (evita duplicatas por CNPJ/CPF)
+ * 2. Criar usuário no Supabase Auth
+ * 3. Criar usuário na tabela User local (com supabase_user_id)
+ * 4. Criar o Workspace (com ownerId e organizationId)
+ * 5. Criar a WorkspaceSubscription (vinculando ao plano)
+ * 6. Criar WorkspaceMember (vinculando usuário ao workspace com role work_admin)
  *
  * Se qualquer passo falhar:
  * - A transação Prisma é automaticamente revertida
  * - O usuário criado no Supabase Auth é deletado manualmente
  * - Um erro detalhado é retornado
+ *
+ * IMPORTANTE: O upsert em Organization usa o documento (CNPJ/CPF) como chave única.
+ * Se uma organização com o mesmo documento já existir, ela será reutilizada,
+ * permitindo múltiplos workspaces para a mesma empresa.
  *
  * @param data - Dados validados do formulário
  * @returns Resultado com status e IDs dos recursos criados
@@ -66,7 +74,7 @@ interface CreateWorkspaceResult {
  * @example
  * ```ts
  * const result = await createWorkspace({
- *   workspaceName: "Acme Corp",
+ *   organizationName: "Acme Corp",
  *   clientType: "pj",
  *   document: "12.345.678/0001-00",
  *   adminName: "João Silva",
@@ -94,7 +102,7 @@ export async function createWorkspace(
     }
 
     // Validar dados com o Zod schema
-    const validatedData = createWorkspaceSchema.parse(data);
+    const validatedData = createClientSchema.parse(data);
 
     // Verificar se o plano existe
     const planExists = await prisma.plan.findUnique({
@@ -123,34 +131,48 @@ export async function createWorkspace(
     }
 
     /**
-     * PASSO 1: Criar usuário no Supabase Auth
-     * Executado FORA da transação porque é uma operação externa
-     */
-    const { data: authData, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email: validatedData.adminEmail,
-        password: validatedData.password,
-        email_confirm: true,
-      });
-
-    if (authError || !authData.user) {
-      return {
-        success: false,
-        message: "Erro ao criar usuário no sistema de autenticação.",
-        error: authError?.message || "Falha desconhecida no Auth",
-      };
-    }
-
-    supabaseUserId = authData.user.id;
-
-    /**
-     * TRANSAÇÃO ATÔMICA: 4 operações restantes
-     * Passos 2-5: User local + Workspace + Subscription + WorkspaceMember
-     * Se qualquer uma falhar, todas são revertidas
+     * TRANSAÇÃO ATÔMICA: 6 operações
+     * Passos 1-6: Organization + Auth User + User local + Workspace + Subscription + WorkspaceMember
+     * Se qualquer uma falhar, todas são revertidas (exceto Auth que precisa de rollback manual)
      */
     const result = await prisma.$transaction(async (tx) => {
       /**
-       * PASSO 2: Criar usuário na tabela User local
+       * PASSO 1: Upsert Organization (evita duplicatas por documento)
+       * IMPORTANTE: Se o documento já existe, reutiliza a Organization existente
+       */
+      const organization = await tx.organization.upsert({
+        where: { 
+          document: validatedData.document || `temp-${Date.now()}` 
+        },
+        update: {}, // Não atualiza se já existir
+        create: {
+          name: validatedData.organizationName,
+          document: validatedData.document,
+        },
+      });
+
+      /**
+       * PASSO 2: Criar usuário no Supabase Auth
+       * Executado DENTRO da transação para garantir consistência
+       * (Nota: Se a transação falhar depois, precisaremos fazer rollback manual)
+       */
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: validatedData.adminEmail,
+          password: validatedData.password,
+          email_confirm: true,
+        });
+
+      if (authError || !authData.user) {
+        throw new Error(
+          authError?.message || "Falha ao criar usuário no Auth"
+        );
+      }
+
+      supabaseUserId = authData.user.id;
+
+      /**
+       * PASSO 3: Criar usuário na tabela User local
        */
       const newUser = await tx.user.create({
         data: {
@@ -162,21 +184,20 @@ export async function createWorkspace(
       });
 
       /**
-       * PASSO 3: Criar o Workspace
-       * ownerId usa o ID do usuário que acabamos de criar
+       * PASSO 4: Criar o Workspace
+       * Agora com organizationId vinculando à Organization
        */
       const newWorkspace = await tx.workspace.create({
         data: {
-          name: validatedData.workspaceName,
-          slug: `${validatedData.workspaceName
-            .toLowerCase()
-            .replace(/\s+/g, "-")}-${Date.now()}`,
+          name: validatedData.organizationName,
+          slug: generateSlug(validatedData.organizationName),
           ownerId: newUser.id,
+          organizationId: organization.id, // 🔗 NOVA RELAÇÃO
         },
       });
 
       /**
-       * PASSO 4: Criar a WorkspaceSubscription
+       * PASSO 5: Criar a WorkspaceSubscription
        * Vincula o workspace ao plano selecionado
        */
       const newSubscription = await tx.workspaceSubscription.create({
@@ -188,7 +209,7 @@ export async function createWorkspace(
       });
 
       /**
-       * PASSO 5: Criar WorkspaceMember
+       * PASSO 6: Criar WorkspaceMember
        * Vincula o novo usuário ao novo workspace como work_admin
        */
       const workspaceMember = await tx.workspaceMember.create({
@@ -200,6 +221,7 @@ export async function createWorkspace(
       });
 
       return {
+        organization,
         user: newUser,
         workspace: newWorkspace,
         subscription: newSubscription,
@@ -213,6 +235,7 @@ export async function createWorkspace(
     return {
       success: true,
       message: "Cliente criado com sucesso!",
+      organizationId: result.organization.id,
       workspaceId: result.workspace.id,
       subscriptionId: result.subscription.id,
     };

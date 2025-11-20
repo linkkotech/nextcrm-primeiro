@@ -150,6 +150,16 @@
   background-color: hsl(var(--muted));
 }
 
+/* Form Field Background - Light neutral color for form inputs */
+.form-field-bg {
+  background-color: hsl(var(--background));
+}
+
+/* Form Field Border - Same color as form field background */
+.form-field-border {
+  border-color: hsl(var(--background));
+}
+
 .hover\:bg-accent:hover {
   background-color: hsl(var(--accent));
 }

@@ -3,27 +3,25 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTransition } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
 import {
+    Button,
+    Card,
+    Checkbox,
+    Input,
+    Switch,
+    Textarea,
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
-import {
     Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
+} from '@/components/ui';
 import { unitFormSchema, type UnitFormData } from '@/schemas/unit.schemas';
 import { upsertUnit } from '@/actions/unit.actions';
 import { toast } from 'sonner';
@@ -110,6 +108,7 @@ export function UnitForm({
                             <FormControl>
                                 <Input
                                     placeholder="Ex: Unidade São Paulo, Filial Norte"
+                                    className="form-field-bg form-field-border"
                                     {...field}
                                 />
                             </FormControl>
@@ -128,7 +127,7 @@ export function UnitForm({
                             <FormControl>
                                 <Textarea
                                     placeholder="Descrição ou observações sobre esta unidade"
-                                    className="resize-none"
+                                    className="resize-none form-field-bg form-field-border"
                                     rows={3}
                                     {...field}
                                     value={field.value || ''}
@@ -148,7 +147,7 @@ export function UnitForm({
                             <FormLabel>Template</FormLabel>
                             <Select value={field.value || ''} onValueChange={field.onChange}>
                                 <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="form-field-bg form-field-border">
                                         <SelectValue placeholder="Selecione um template" />
                                     </SelectTrigger>
                                 </FormControl>

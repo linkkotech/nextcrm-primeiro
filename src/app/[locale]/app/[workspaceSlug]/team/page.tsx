@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import { validateWorkspaceMembership } from '@/lib/workspace-validation';
+import { TeamWorkspaceClient } from './team-workspace-client';
+import { type TeamMember } from '@/components/application/team/TeamDataTable';
 
 interface TeamPageProps {
   params: Promise<{
@@ -38,7 +40,43 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
   const workspace = validationResult.workspace;
 
-  // 3. Buscar membros do workspace
+  // 3. Buscar organização e unidades do workspace
+  const workspaceWithDetails = await prisma.workspace.findUnique({
+    where: { id: workspace.id },
+    select: {
+      organization: {
+        select: {
+          name: true,
+        },
+      },
+      units: {
+        where: { isActive: true },
+        select: {
+          id: true,
+          name: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      },
+    },
+  });
+
+  const organizationName = workspaceWithDetails?.organization?.name || '';
+  const availableUnits = workspaceWithDetails?.units || [];
+
+  // 3.1. Buscar roles disponíveis para o workspace
+  const availableRoles = await prisma.workspaceRole.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  });
+
+  // 4. Buscar membros do workspace
   type WorkspaceMemberWithRelations = Prisma.WorkspaceMemberGetPayload<{
     include: {
       user: {
@@ -47,6 +85,16 @@ export default async function TeamPage({ params }: TeamPageProps) {
           name: true;
           email: true;
           image: true;
+          unitMemberships: {
+            select: {
+              unit: {
+                select: {
+                  id: true;
+                  name: true;
+                };
+              };
+            };
+          };
         };
       };
       workspaceRole: true;
@@ -68,6 +116,18 @@ export default async function TeamPage({ params }: TeamPageProps) {
             name: true,
             email: true,
             image: true,
+            cargo: true,
+            celular: true,
+            unitMemberships: {
+              select: {
+                unit: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         workspaceRole: true,
@@ -82,58 +142,30 @@ export default async function TeamPage({ params }: TeamPageProps) {
   }
 
   // Transformar dados para o cliente
-  const formattedMembers = teamMembers.map((member) => ({
+  const formattedMembers: TeamMember[] = teamMembers.map((member) => ({
     id: member.id,
-    name: member.user?.name || '—',
-    email: member.user?.email || '—',
-    role: member.workspaceRole?.name || '—',
-    image: member.user?.image,
+    user: {
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      image: member.user.image,
+      cargo: member.user.cargo,
+      celular: member.user.celular,
+      unitMemberships: member.user.unitMemberships,
+    },
+    workspaceRole: member.workspaceRole,
+    createdAt: member.createdAt,
+    updatedAt: member.updatedAt,
   }));
 
-  // Para agora, renderizar JSON em vez de componente inexistente
-  // TODO: Criar TeamWorkspaceClient component
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{t('workspace.team.title')}</h1>
-      <p className="mt-2 text-gray-600">{t('workspace.team.description')}</p>
-      
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 border border-red-400 rounded">
-          <p className="text-red-700">{error}</p>
-        </div>
-      )}
-
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-4">{t('workspace.team.team_members')}</h2>
-        {formattedMembers.length === 0 ? (
-          <p className="text-gray-500">{t('workspace.team.no_members')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border border-gray-300 px-4 py-2 text-left">{t('workspace.team.name')}</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">{t('workspace.team.email')}</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">{t('workspace.team.role')}</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">{t('workspace.team.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formattedMembers.map((member) => (
-                  <tr key={member.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2">{member.name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{member.email}</td>
-                    <td className="border border-gray-300 px-4 py-2">{member.role}</td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <button className="text-blue-600 hover:underline">Editar</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+    <TeamWorkspaceClient
+      data={formattedMembers}
+      workspaceSlug={workspaceSlug}
+      organizationName={organizationName}
+      availableUnits={availableUnits}
+      availableRoles={availableRoles}
+      error={error}
+    />
   );
 }

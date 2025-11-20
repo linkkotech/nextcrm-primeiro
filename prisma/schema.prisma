@@ -57,6 +57,8 @@ model User {
   email                String?           @unique
   emailVerified        DateTime?
   image                String?
+  cargo                String?           // Cargo/função do usuário
+  celular              String?           // Telefone celular
   deletedAt            DateTime?
   adminRoleId          String?
   adminRole            AdminRole?        @relation(fields: [adminRoleId], references: [id])
@@ -84,6 +86,25 @@ model WorkspaceRole {
   members WorkspaceMember[]
 }
 
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  document    String?  @unique
+
+  // Relação com Workspaces que pertencem a esta Organização
+  workspaces Workspace[]
+
+  // Relação com o Endereço de Cobrança
+  billingAddressId String?
+  billingAddress   Address? @relation("OrganizationBilling", fields: [billingAddressId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([document])
+}
+
+
 model Workspace {
   id        String            @id @default(cuid())
   name      String
@@ -91,6 +112,11 @@ model Workspace {
   ownerId   String
   owner     User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   members   WorkspaceMember[]
+  
+  // Relação com Organização (empresa cliente)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
@@ -118,6 +144,8 @@ model Workspace {
   
   // Relação com assinatura de plano
   subscription WorkspaceSubscription?
+  
+  @@index([organizationId])
 }
 
 model WorkspaceMember {
@@ -152,7 +180,7 @@ model Address {
   longitude   Float?
   // Para buscas geoespaciais avançadas (requer PostGIS no PostgreSQL)
   // Ex: GEOGRAPHY(Point, 4326)
-  geoPoint    Unsupported("geography(Point, 4326)")?
+  // geoPoint    Unsupported("geography(Point, 4326)")?
 
   type        AddressType // Enum: 'comercial', 'residencial'
   isActive    Boolean  @default(true)
@@ -166,6 +194,9 @@ model Address {
   createdBy   User      @relation(fields: [createdById], references: [id])
   units       Unit[]
 
+  // Relação inversa para Organization (endereço de cobrança)
+  organizationBilling Organization[] @relation("OrganizationBilling")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -177,6 +208,7 @@ model Address {
 model Unit {
   id          String   @id @default(cuid())
   name        String
+  description String?
 
   isActive    Boolean  @default(true)
 

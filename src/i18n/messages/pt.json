@@ -139,7 +139,7 @@
   "units": {
     "title": "Unidades",
     "description": "Gerencie as unidades operacionais da sua organização.",
-    "new_unit": "+ Nova Unidade",
+    "new_unit": "Adicionar Unidade",
     "edit": "Editar",
     "delete": "Excluir",
     "form_title_create": "Criar Nova Unidade",

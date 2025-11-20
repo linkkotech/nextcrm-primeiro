@@ -9,29 +9,25 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { AddressCard } from "@/components/application/addresses/AddressCard";
 import { AddressForm } from "@/components/application/addresses/AddressForm";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+    Button,
+    Card,
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import {
     Pagination,
     PaginationContent,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/ui";
 
 interface AddressesClientProps {
     addresses: Address[];
