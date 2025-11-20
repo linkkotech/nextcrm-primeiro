@@ -46,17 +46,10 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <NextIntlClientProvider>
-          <RouteProvider>
-            <ThemeProvider defaultTheme="light" enableSystem>
-              {children}
-              <Toaster richColors position="top-center" closeButton />
-            </ThemeProvider>
-          </RouteProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider>
+      <RouteProvider>
+        {children}
+      </RouteProvider>
+    </NextIntlClientProvider>
   );
 }

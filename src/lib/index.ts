@@ -133,3 +133,16 @@ export * from './stripe';
  * Prisma middleware for cross-cutting concerns (logging, soft deletes, etc.)
  */
 export { setupSoftDeleteMiddleware } from './prisma-middleware';
+
+// ============================================
+// NAVIGATION UTILITIES
+// ============================================
+/**
+ * Navigation helper functions
+ * Extract active module from pathname for contextual sidebar navigation
+ * 
+ * @example
+ * const activeModule = getActiveModuleFromPath(pathname);
+ * // Returns: "crm" | "ai-agents" | "dashboard" | null
+ */
+export { getActiveModuleFromPath } from './navigation-utils';

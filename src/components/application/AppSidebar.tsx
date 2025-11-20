@@ -52,6 +52,7 @@ interface AppSidebarProps {
   userName?: string | null;
   userEmail?: string | null;
   userImage?: string | null;
+  activeModule?: string | null;
 }
 
 /**
@@ -71,12 +72,14 @@ interface AppSidebarProps {
  * @param userName - Nome do usuário logado
  * @param userEmail - Email do usuário logado
  * @param userImage - URL da imagem do avatar do usuário
+ * @param activeModule - Módulo atualmente ativo (controlado pela IconSidebar) - Preparado para navegação contextual futura
  */
 function AppSidebarContent({
   workspaceSlug,
   userName,
   userEmail,
   userImage,
+  activeModule,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const t = useTranslations();
@@ -409,6 +412,7 @@ export function AppSidebar({
   userName,
   userEmail,
   userImage,
+  activeModule,
 }: AppSidebarProps) {
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -417,6 +421,7 @@ export function AppSidebar({
         userName={userName}
         userEmail={userEmail}
         userImage={userImage}
+        activeModule={activeModule}
       />
     </Sidebar>
   );
