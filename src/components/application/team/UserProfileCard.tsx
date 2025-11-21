@@ -1,10 +1,9 @@
 /**
- * UserProfileCard - Card de Perfil Rico do Membro
+ * UserProfileCard - Card de Perfil do Membro
  * 
- * Componente visual inspirado no design "Ludmila" que exibe informações
- * detalhadas do membro em layout de duas colunas:
- * - Coluna esquerda: Avatar, nome, métricas rápidas, ação primária
- * - Coluna direita: Grid de informações (telefone, endereço, cidade, etc.)
+ * Componente visual que exibe informações do membro em layout de duas colunas:
+ * - Coluna esquerda: Avatar, nome, email, métricas e ação
+ * - Coluna direita: Lista de descrição com campos do usuário
  * 
  * @param member - Dados completos do membro incluindo createdAt
  * @param contactsCount - Número de contatos associados (placeholder: 5)
@@ -20,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Pencil } from 'lucide-react';
+import { Briefcase, Mail, Phone, Building2, Clock, Circle, Pencil } from 'lucide-react';
 
 interface UserProfileCardProps {
   member: {
@@ -62,7 +61,7 @@ export function UserProfileCard({
     <Card>
       <CardContent className="p-8 pt-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* COLUNA ESQUERDA: Avatar, Nome, Métricas, Ação */}
+          {/* COLUNA ESQUERDA: Avatar, Nome, Email, Métricas, Ação */}
           <div className="flex flex-col items-center text-center space-y-4 md:border-r md:pr-8">
             {/* Avatar */}
             <Avatar className="h-24 w-24">
@@ -105,68 +104,68 @@ export function UserProfileCard({
             </Button>
           </div>
 
-          {/* COLUNA DIREITA: Grid de Informações */}
-          <div className="md:col-span-2 grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-            {/* Telefone */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Telefone</p>
-              <p className="font-medium">
-                {member.celular || 'Não informado'}
-              </p>
-            </div>
-
+          {/* COLUNA DIREITA: Lista de Descrição */}
+          <div className="md:col-span-2 space-y-0 divide-y">
             {/* Cargo */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Cargo</p>
-              <p className="font-medium">
+            <div className="flex justify-between items-center py-3 first:pt-0">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Briefcase className="h-4 w-4 mr-2" />
+                Cargo:
+              </span>
+              <span className="text-sm font-medium">
                 {member.cargo || 'Não informado'}
-              </p>
+              </span>
             </div>
 
-            {/* Endereço Principal (placeholder com primeira unidade) */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Endereço Principal</p>
-              <p className="font-medium">
+            {/* E-mail */}
+            <div className="flex justify-between items-center py-3">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mr-2" />
+                E-mail:
+              </span>
+              <span className="text-sm font-medium">
+                {member.email}
+              </span>
+            </div>
+
+            {/* Telefone */}
+            <div className="flex justify-between items-center py-3">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 mr-2" />
+                Telefone:
+              </span>
+              <span className="text-sm font-medium">
+                {member.celular || 'Não informado'}
+              </span>
+            </div>
+
+            {/* Unidade */}
+            <div className="flex justify-between items-center py-3">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Building2 className="h-4 w-4 mr-2" />
+                Unidade:
+              </span>
+              <span className="text-sm font-medium">
                 {member.units.length > 0 ? member.units[0] : 'Não atribuído'}
-              </p>
+              </span>
             </div>
 
-            {/* Cidade (placeholder) */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Cidade</p>
-              <p className="font-medium text-muted-foreground">
-                São Paulo
-              </p>
-            </div>
-
-            {/* CEP (placeholder) */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">CEP</p>
-              <p className="font-medium text-muted-foreground">
-                01000-000
-              </p>
+            {/* Role */}
+            <div className="flex justify-between items-center py-3">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Circle className="h-4 w-4 mr-2" />
+                Role:
+              </span>
+              <Badge variant="secondary">{member.role}</Badge>
             </div>
 
             {/* Data de Cadastro */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Data de Cadastro</p>
-              <p className="font-medium">{formattedDate}</p>
-            </div>
-
-            {/* Role (WorkspaceRole) */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Role</p>
-              <div>
-                <Badge variant="secondary">{member.role}</Badge>
-              </div>
-            </div>
-
-            {/* Status do Membro */}
-            <div className="space-y-1">
-              <p className="text-muted-foreground">Status do Membro</p>
-              <div>
-                <Badge className="bg-green-500 hover:bg-green-600">Ativo</Badge>
-              </div>
+            <div className="flex justify-between items-center py-3">
+              <span className="flex items-center text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 mr-2" />
+                Data de Cadastro:
+              </span>
+              <span className="text-sm font-medium">{formattedDate}</span>
             </div>
           </div>
         </div>

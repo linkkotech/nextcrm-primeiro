@@ -3,8 +3,8 @@
  * 
  * Responsabilidades:
  * - Renderizar layout de duas colunas com cards de informação
- * - Gerenciar estado de interatividade (futuro: edição, modals)
- * - Exibir placeholder para todas as seções
+ * - Gerenciar estado de edição via Sheet (painel lateral)
+ * - Exibir ProfileDetailsCard unificado
  * - Usar useTranslations() para i18n no cliente
  * 
  * Layout:
@@ -15,6 +15,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -27,6 +28,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { UserProfileCard } from '@/components/application/team/UserProfileCard';
+import { ProfileDetailsCard } from '@/components/application/team/ProfileDetailsCard';
+import { ProfileDetailsForm } from '@/components/application/team/ProfileDetailsForm';
+import { FormSheet } from '@/components/application/shared/FormSheet';
 
 interface MemberDetailsClientProps {
   member: {
@@ -46,8 +50,8 @@ interface MemberDetailsClientProps {
 /**
  * Renderiza a página de detalhes do membro com layout de duas colunas
  * 
- * IMPORTANTE: Esta é a estrutura visual inicial com placeholders.
- * Funcionalidades de edição serão implementadas posteriormente.
+ * IMPORTANTE: Usa novo padrão Sheet para formulários complexos.
+ * ProfileDetailsCard unificado substitui múltiplos cards placeholder.
  * 
  * @param member - Dados do membro do workspace
  * @param workspaceSlug - Slug do workspace para navegação
@@ -56,127 +60,35 @@ export function MemberDetailsClient({
   member,
   workspaceSlug,
 }: MemberDetailsClientProps) {
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+
+  const handleEditSuccess = () => {
+    setIsEditSheetOpen(false);
+    // TODO: Revalidar dados da página ou refetch
+  };
+
+  const handleEditCancel = () => {
+    setIsEditSheetOpen(false);
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* COLUNA ESQUERDA: Informações do Membro */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Card de Perfil Rico */}
-        <UserProfileCard 
-          member={member} 
-          contactsCount={5} 
-          tasksCount={2} 
-        />
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* COLUNA ESQUERDA: Informações do Membro */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Card de Perfil Rico */}
+          <UserProfileCard 
+            member={member} 
+            contactsCount={5} 
+            tasksCount={2} 
+          />
 
-        {/* Card 1: Details */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Details</CardTitle>
-            <Button variant="ghost" size="sm">
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit Details
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-muted-foreground">
-              <p><strong>Email:</strong> {member.email}</p>
-              <p><strong>Phone:</strong> {member.celular || 'Not provided'}</p>
-              <p><strong>Units:</strong> {member.units.length > 0 ? member.units.join(', ') : 'No units assigned'}</p>
-              <p className="text-sm italic">Additional details will be displayed here...</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Addresses */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div className="flex items-center gap-2">
-              <CardTitle>Addresses</CardTitle>
-              <Badge variant="default" className="bg-blue-500">NEW</Badge>
-            </div>
-            <Button variant="ghost" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              No addresses configured. Click "Add" to create a new address entry.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: Social Fields */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Social Fields</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Social media links and profiles will be displayed here (LinkedIn, Twitter, etc.)
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Profile Bio */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Bio</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Member's biography and professional summary will appear here.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 5: Linked Profiles */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Linked Profiles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Connected external profiles and integrations will be listed here.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 6: Custom Fields */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Custom Fields</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Custom data fields specific to your organization will be shown here.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 7: Additional Options */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Options</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Advanced settings and configuration options will appear here.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 8: Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Notification preferences and settings for this member.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Card Unificado de Detalhes */}
+          <ProfileDetailsCard
+            member={member}
+            onEditClick={() => setIsEditSheetOpen(true)}
+          />
+        </div>
 
       {/* COLUNA DIREITA: Preview e Status */}
       <div className="lg:col-span-1 space-y-6">
@@ -274,6 +186,28 @@ export function MemberDetailsClient({
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+
+      {/* Sheet para Edição de Detalhes */}
+      <FormSheet
+        isOpen={isEditSheetOpen}
+        onOpenChange={setIsEditSheetOpen}
+        title="Editar Detalhes do Perfil"
+        description="Atualize as informações pessoais e de contato do membro"
+      >
+        <ProfileDetailsForm
+          workspaceSlug={workspaceSlug}
+          memberId={member.id}
+          initialData={{
+            name: member.name ?? '',
+            email: member.email,
+            cargo: member.cargo ?? undefined,
+            celular: member.celular ?? undefined,
+          }}
+          onSuccess={handleEditSuccess}
+          onCancel={handleEditCancel}
+        />
+      </FormSheet>
+    </>
   );
 }

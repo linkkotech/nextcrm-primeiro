@@ -97,22 +97,28 @@ export function UnitForm({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
                 {/* Nome da Unidade */}
                 <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nome da Unidade *</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Ex: Unidade São Paulo, Filial Norte"
-                                    className="form-field-bg form-field-border"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
+                        <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start py-4 border-b">
+                            <div className="md:col-span-1 space-y-1">
+                                <FormLabel>Nome da Unidade *</FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                    Identificação principal desta unidade
+                                </p>
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                                <FormControl>
+                                    <Input
+                                        placeholder="Ex: Unidade São Paulo, Filial Norte"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </div>
                         </FormItem>
                     )}
                 />
@@ -122,18 +128,25 @@ export function UnitForm({
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Descrição</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="Descrição ou observações sobre esta unidade"
-                                    className="resize-none form-field-bg form-field-border"
-                                    rows={3}
-                                    {...field}
-                                    value={field.value || ''}
-                                />
-                            </FormControl>
-                            <FormMessage />
+                        <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start py-4 border-b">
+                            <div className="md:col-span-1 space-y-1">
+                                <FormLabel>Descrição</FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                    Observações sobre esta unidade
+                                </p>
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Descrição ou observações sobre esta unidade"
+                                        className="resize-none"
+                                        rows={3}
+                                        {...field}
+                                        value={field.value || ''}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </div>
                         </FormItem>
                     )}
                 />
@@ -143,23 +156,30 @@ export function UnitForm({
                     control={form.control}
                     name="templateId"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Template</FormLabel>
-                            <Select value={field.value || ''} onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger className="form-field-bg form-field-border">
-                                        <SelectValue placeholder="Selecione um template" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {templates.map((template) => (
-                                        <SelectItem key={template.id} value={template.id}>
-                                            {template.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                        <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start py-4 border-b">
+                            <div className="md:col-span-1 space-y-1">
+                                <FormLabel>Template</FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                    Template visual para esta unidade
+                                </p>
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                                <Select value={field.value || ''} onValueChange={field.onChange}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione um template" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {templates.map((template) => (
+                                            <SelectItem key={template.id} value={template.id}>
+                                                {template.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </div>
                         </FormItem>
                     )}
                 />
@@ -169,9 +189,14 @@ export function UnitForm({
                     control={form.control}
                     name="addressId"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Endereço</FormLabel>
-                            <div className="space-y-3">
+                        <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start py-4 border-b">
+                            <div className="md:col-span-1 space-y-1">
+                                <FormLabel>Endereço</FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                    Localização física da unidade
+                                </p>
+                            </div>
+                            <div className="md:col-span-2 space-y-3">
                                 {addresses.length > 0 ? (
                                     <>
                                         <div className="text-sm font-medium text-muted-foreground mb-3">
@@ -236,6 +261,7 @@ export function UnitForm({
                                 )}
                             </div>
                             <FormMessage />
+                        </div>
                         </FormItem>
                     )}
                 />
@@ -245,22 +271,29 @@ export function UnitForm({
                     control={form.control}
                     name="isActive"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base">Unidade Ativa</FormLabel>
+                        <FormItem className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center py-4">
+                            <div className="md:col-span-2 md:col-start-2">
+                                <div className="flex items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base">Unidade Ativa</FormLabel>
+                                        <div className="text-sm text-muted-foreground">
+                                            Unidades inativas não aparecem nas listagens
+                                        </div>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                </div>
                             </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
                         </FormItem>
                     )}
                 />
 
                 {/* Botões de Ação */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-6">
                     <Button
                         type="submit"
                         disabled={isPending}

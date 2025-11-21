@@ -17,14 +17,14 @@ export const addressFormSchema = z.object({
         .string()
         .length(2, 'Código do estado deve ter 2 caracteres')
         .toUpperCase(),
-    country: z.string().max(2).optional().default('BR'),
+    country: z.string().length(2, 'Código do país deve ter 2 caracteres').default('BR'),
     postalCode: z
         .string()
         .regex(/^\d{5}-?\d{3}$/, 'CEP inválido (formato: 00000-000)'),
     type: z.enum(['comercial', 'residencial'], {
         errorMap: () => ({ message: 'Tipo deve ser comercial ou residencial' }),
     }),
-    isActive: z.boolean().optional().default(true),
+    isActive: z.boolean().default(true),
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),
 });

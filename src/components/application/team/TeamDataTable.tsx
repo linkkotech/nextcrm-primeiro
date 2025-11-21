@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -9,7 +10,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Table,
   TableBody,
@@ -20,7 +33,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MoreHorizontal, ChevronDown } from 'lucide-react';
+import { MoreHorizontal, ChevronDown, Eye, Edit, UserX, Mail } from 'lucide-react';
 import { TeamSummaryPanel } from './TeamSummaryPanel';
 
 export interface TeamMember {
@@ -50,6 +63,98 @@ export interface TeamMember {
 interface TeamDataTableProps {
   data: TeamMember[];
   workspaceSlug: string;
+}
+
+/**
+ * Menu de Ações do Membro da Equipe
+ * 
+ * Dropdown com ações disponíveis para cada membro:
+ * - Ver Perfil (navegação)
+ * - Editar Perfil (navegação)
+ * - Reenviar Credenciais (desabilitado)
+ * - Remover do Workspace (AlertDialog com confirmação)
+ */
+interface TeamMemberActionsMenuProps {
+  memberId: string;
+  memberName: string;
+  workspaceSlug: string;
+}
+
+function TeamMemberActionsMenu({ memberId, memberName, workspaceSlug }: TeamMemberActionsMenuProps) {
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+
+  const handleRemove = () => {
+    console.log('Remover membro do workspace:', memberId);
+    // TODO: Implementar server action para remover membro
+    setRemoveDialogOpen(false);
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+          
+          <DropdownMenuItem asChild>
+            <Link href={`/app/${workspaceSlug}/team/${memberId}`}>
+              <Eye className="mr-2 h-4 w-4" />
+              Ver Perfil
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link href={`/app/${workspaceSlug}/team/${memberId}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar Perfil
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem disabled>
+            <Mail className="mr-2 h-4 w-4" />
+            Reenviar Credenciais
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onClick={() => setRemoveDialogOpen(true)}
+          >
+            <UserX className="mr-2 h-4 w-4" />
+            Remover do Workspace
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover <strong>{memberName}</strong> deste workspace?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemove}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }
 
 /**
@@ -234,18 +339,11 @@ export function TeamDataTable({ data, workspaceSlug }: TeamDataTableProps) {
 
                     {/* Ações */}
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Editar</DropdownMenuItem>
-                          <DropdownMenuItem>Visualizar detalhes</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Remover do workspace</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <TeamMemberActionsMenu
+                        memberId={member.id}
+                        memberName={member.user.name || member.user.email || 'Membro'}
+                        workspaceSlug={workspaceSlug}
+                      />
                     </TableCell>
                   </TableRow>
                 );

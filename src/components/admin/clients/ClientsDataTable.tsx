@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -9,7 +10,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Table,
   TableBody,
@@ -21,7 +34,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MoreHorizontal, ChevronDown, Search } from 'lucide-react';
+import { MoreHorizontal, ChevronDown, Search, Eye, Edit, RotateCcw, UserX, Trash2 } from 'lucide-react';
 import { ClientSummaryPanel } from './ClientSummaryPanel';
 
 export interface Client {
@@ -54,6 +67,117 @@ export interface Client {
 interface ClientsDataTableProps {
   data: Client[];
   initialSearch?: string;
+}
+
+/**
+ * Componente de Menu de Ações para cada cliente
+ * Contém opções de navegação (Ver/Editar) e ações (Reenviar, Desativar, Excluir)
+ */
+function ClientActionsMenu({ clientId, clientName }: { clientId: string; clientName: string }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+
+  const handleDelete = () => {
+    console.log('Excluir cliente:', clientId);
+    setDeleteDialogOpen(false);
+    // TODO: Implementar server action deleteClient
+  };
+
+  const handleDeactivate = () => {
+    console.log('Desativar cliente:', clientId);
+    setDeactivateDialogOpen(false);
+    // TODO: Implementar server action deactivateClient
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Abrir menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+          
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/clients/${clientId}`}>
+              <Eye className="h-4 w-4 mr-2" />
+              Ver Perfil
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/clients/${clientId}/edit`}>
+              <Edit className="h-4 w-4 mr-2" />
+              Editar Perfil
+            </Link>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem disabled>
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reenviar Credenciais
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => setDeactivateDialogOpen(true)}>
+            <UserX className="h-4 w-4 mr-2" />
+            Desativar Perfil
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem 
+            className="text-destructive"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Excluir Perfil
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* AlertDialog para Excluir */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>{clientName}</strong>?
+              Esta ação não pode ser desfeita e todos os dados associados serão permanentemente removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* AlertDialog para Desativar */}
+      <AlertDialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Desativar Cliente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja desativar <strong>{clientName}</strong>?
+              O cliente não poderá mais acessar a plataforma até ser reativado.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeactivate}>
+              Desativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }
 
 /**
@@ -257,18 +381,10 @@ export function ClientsDataTable({ data, initialSearch = '' }: ClientsDataTableP
 
                   {/* Ações */}
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Editar</DropdownMenuItem>
-                        <DropdownMenuItem>Visualizar detalhes</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Deletar</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <ClientActionsMenu 
+                      clientId={client.id} 
+                      clientName={client.name || client.email || 'Cliente'} 
+                    />
                   </TableCell>
                 </TableRow>
               );
