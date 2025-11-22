@@ -47,7 +47,7 @@ export function AppLayoutClient({
   userImage,
 }: AppLayoutClientProps) {
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
-  
+
   // Derivar módulo ativo do pathname (Single Source of Truth)
   const pathname = usePathname();
   const locale = useLocale();
@@ -57,9 +57,9 @@ export function AppLayoutClient({
     <CommandPaletteProvider>
       {/* Layout flex de alto nível: IconSidebar + SidebarProvider como irmãos */}
       <div className="flex h-screen w-full bg-background overflow-hidden">
-        
+
         {/* FILHO 1: IconSidebar independente (64px, no fluxo normal) */}
-        <IconSidebar 
+        <IconSidebar
           workspaceSlug={workspaceSlug}
           locale={locale}
           activeModule={activeModule}
@@ -73,6 +73,7 @@ export function AppLayoutClient({
             userEmail={userEmail}
             userImage={userImage}
             activeModule={activeModule}
+            hasIconSidebar={true}
           />
           <SidebarInset className="overflow-y-hidden">
             <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />

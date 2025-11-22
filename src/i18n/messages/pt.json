@@ -65,6 +65,11 @@
       "actions": "Ações",
       "no_members": "Nenhum membro da equipe encontrado.",
       "error": "Erro ao carregar membros da equipe. Tente novamente."
+    },
+    "blockEditor": {
+      "canvas": "Canvas de Edição",
+      "properties": "Painel de Propriedades",
+      "save": "Salvar"
     }
   },
   "workspace": {

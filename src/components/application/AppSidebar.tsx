@@ -53,6 +53,7 @@ interface AppSidebarProps {
   userEmail?: string | null;
   userImage?: string | null;
   activeModule?: string | null;
+  hasIconSidebar?: boolean;
 }
 
 /**
@@ -73,6 +74,7 @@ interface AppSidebarProps {
  * @param userEmail - Email do usuário logado
  * @param userImage - URL da imagem do avatar do usuário
  * @param activeModule - Módulo atualmente ativo (controlado pela IconSidebar) - Preparado para navegação contextual futura
+ * @param hasIconSidebar - Indica se a IconSidebar está presente (para ajustes de layout)
  */
 function AppSidebarContent({
   workspaceSlug,
@@ -413,9 +415,14 @@ export function AppSidebar({
   userEmail,
   userImage,
   activeModule,
+  hasIconSidebar = false,
 }: AppSidebarProps) {
   return (
-    <Sidebar variant="inset" collapsible="icon">
+    <Sidebar
+      variant="inset"
+      collapsible="icon"
+      data-has-icon-sidebar={hasIconSidebar}
+    >
       <AppSidebarContent
         workspaceSlug={workspaceSlug}
         userName={userName}

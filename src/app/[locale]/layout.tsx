@@ -5,7 +5,7 @@ import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { RouteProvider } from "@/components/providers/route-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 
 /**
@@ -49,6 +49,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider>
       <RouteProvider>
         {children}
+        <Toaster />
       </RouteProvider>
     </NextIntlClientProvider>
   );

@@ -14,6 +14,7 @@ import {
   Blocks,
   LifeBuoy,
   Settings2,
+  LayoutTemplate,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -41,12 +42,13 @@ interface AdminSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userName?: string | null
   userEmail?: string | null
   userImage?: string | null
+  hasIconSidebar?: boolean
 }
 
-export function AdminSidebar({ userName, userEmail, userImage, ...props }: AdminSidebarProps) {
+export function AdminSidebar({ userName, userEmail, userImage, hasIconSidebar = false, ...props }: AdminSidebarProps) {
   const t = useTranslations()
   const locale = useLocale()
-  
+
   const user = {
     name: userName || "Admin User",
     email: userEmail || "admin@example.com",
@@ -55,21 +57,21 @@ export function AdminSidebar({ userName, userEmail, userImage, ...props }: Admin
 
   const data = {
     navMain: [
-      { 
-        title: t("navigation.dashboard"), 
-        url: `/${locale}/admin/dashboard`, 
-        icon: LayoutDashboard, 
-        isActive: true 
+      {
+        title: t("navigation.dashboard"),
+        url: `/${locale}/admin/dashboard`,
+        icon: LayoutDashboard,
+        isActive: true
       },
-      { 
-        title: "Clientes", 
-        url: `/${locale}/admin/clients`, 
-        icon: Users 
+      {
+        title: "Clientes",
+        url: `/${locale}/admin/clients`,
+        icon: Users
       },
-      { 
-        title: t("navigation.team"), 
-        url: `/${locale}/admin/team`, 
-        icon: UsersRound 
+      {
+        title: t("navigation.team"),
+        url: `/${locale}/admin/team`,
+        icon: UsersRound
       },
       {
         title: "Planos",
@@ -81,48 +83,48 @@ export function AdminSidebar({ userName, userEmail, userImage, ...props }: Admin
           { title: "Pedidos", url: `/${locale}/admin/orders` },
         ],
       },
-      { 
-        title: "Pagamentos", 
-        url: `/${locale}/admin/payments`, 
-        icon: CreditCard 
+      {
+        title: "Pagamentos",
+        url: `/${locale}/admin/payments`,
+        icon: CreditCard
       },
-      // { 
-      //   title: "Templates Digitais", 
-      //   url: `/${locale}/admin/digital-templates`, 
-      //   icon: FileText 
-      // },
-      { 
-        title: "Templates de E-mail", 
-        url: `/${locale}/admin/email-templates`, 
-        icon: Mail 
+      {
+        title: "Templates Digitais",
+        url: `/${locale}/admin/digital-templates`,
+        icon: LayoutTemplate
       },
-      { 
-        title: "Usuários Workspace", 
-        url: `/${locale}/admin/workspace-users`, 
-        icon: Building2 
+      {
+        title: "Templates de E-mail",
+        url: `/${locale}/admin/email-templates`,
+        icon: Mail
       },
-      { 
-        title: "Módulos", 
-        url: `/${locale}/admin/modules`, 
-        icon: Blocks 
+      {
+        title: "Usuários Workspace",
+        url: `/${locale}/admin/workspace-users`,
+        icon: Building2
+      },
+      {
+        title: "Módulos",
+        url: `/${locale}/admin/modules`,
+        icon: Blocks
       },
     ],
     navSecondary: [
-      { 
-        title: t("navigation.support"), 
-        url: `/${locale}/admin/support`, 
-        icon: LifeBuoy 
+      {
+        title: t("navigation.support"),
+        url: `/${locale}/admin/support`,
+        icon: LifeBuoy
       },
-      { 
-        title: "Configurações", 
-        url: `/${locale}/admin/settings`, 
-        icon: Settings2 
+      {
+        title: "Configurações",
+        url: `/${locale}/admin/settings`,
+        icon: Settings2
       },
     ],
   }
 
   return (
-    <Sidebar variant="inset" collapsible="icon" {...props}>
+    <Sidebar variant="inset" collapsible="icon" data-has-icon-sidebar={hasIconSidebar} {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

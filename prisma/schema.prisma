@@ -256,12 +256,25 @@ model UnitMember {
 // MODELOS DE TEMPLATES DIGITAIS
 // ===================================
 
+enum BlockType {
+  HERO
+  BIO
+  LINKS
+  CONTACT
+  TEXT
+  IMAGE
+  VIDEO
+  SEPARATOR
+  SOCIAL
+}
+
 model DigitalTemplate {
   id              String            @id @default(cuid())
   name            String
   description     String?
   type            TemplateType
-  content         Json
+  // content field removed in favor of TemplateBlock relation
+  blocks          TemplateBlock[]
   workspaceId     String?           @map("workspace_id")
   workspace       Workspace?        @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
   createdByUserId String
@@ -275,6 +288,20 @@ model DigitalTemplate {
   @@index([workspaceId])
 }
 
+model TemplateBlock {
+  id          String          @id @default(cuid())
+  templateId  String
+  template    DigitalTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  type        BlockType
+  content     Json            // Stores specific data for the block (e.g., text, url, color)
+  sortOrder   Int             // Order of the block in the template
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([templateId])
+}
+
 // ===================================
 // MODELOS DE MÓDULOS (Placeholders)
 // ===================================
@@ -283,6 +310,10 @@ model DigitalTemplate {
 model Contact {
   id          String    @id @default(cuid())
   fullName    String
+  email       String?
+  phone       String?
+  notes       String?
+  origin      String?   @default("manual") // "manual", "digital_profile", "import"
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
@@ -319,6 +350,8 @@ model DigitalProfile {
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   sourceTemplateId String?
   sourceTemplate   DigitalTemplate? @relation(fields: [sourceTemplateId], references: [id], onDelete: SetNull)
+  slug             String           @unique
+  views            Int              @default(0)
   content          Json
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
@@ -326,6 +359,7 @@ model DigitalProfile {
   @@index([workspaceId])
   @@index([userId])
   @@index([sourceTemplateId])
+  @@index([slug])
 }
 
 // Campaigns

@@ -31,11 +31,12 @@ export function AdminLayoutClient({
           userName={userName}
           userEmail={userEmail}
           userImage={userImage}
+          hasIconSidebar={false}
         />
         <SidebarInset className="overflow-y-hidden">
           <AdminHeaderBar onToggleAiSidebar={() => setIsAiSidebarOpen(true)} />
           <SecondaryHeader />
-          <div className="flex flex-1 flex-col overflow-y-auto p-6 min-h-0">
+          <div className="flex flex-1 flex-col overflow-y-auto p-8 min-h-0">
             {children}
           </div>
         </SidebarInset>
