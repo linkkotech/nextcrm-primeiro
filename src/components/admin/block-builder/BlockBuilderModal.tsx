@@ -54,14 +54,17 @@ const ELEMENT_GROUPS = [
 interface BlockBuilderModalProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    onElementSelect?: (elementType: string) => void;
 }
 
 /**
  * BlockBuilderModal renders a compact element palette for the block builder.
  * Contains draggable primitive elements organized by category (Layout, Basic).
  * Designed to be used alongside the main canvas and inspector in BlockEditorClient.
+ * 
+ * When an element is clicked, it calls onElementSelect with the element type key.
  */
-export function BlockBuilderModal({ open, onOpenChange }: BlockBuilderModalProps) {
+export function BlockBuilderModal({ open, onOpenChange, onElementSelect }: BlockBuilderModalProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-sm p-0 gap-0">
@@ -86,6 +89,14 @@ export function BlockBuilderModal({ open, onOpenChange }: BlockBuilderModalProps
                                             key={item.key}
                                             type="button"
                                             draggable
+                                            onClick={() => {
+                                                // Normalizar chave para tipo de elemento (ex: "section" -> "Section")
+                                                const elementType = item.key.charAt(0).toUpperCase() + item.key.slice(1);
+                                                console.log("🎨 [BlockBuilderModal] Elemento clicado:", elementType);
+                                                onElementSelect?.(elementType);
+                                                // Fechar modal após seleção
+                                                onOpenChange?.(false);
+                                            }}
                                             className="flex h-20 flex-col items-center justify-center gap-2 rounded-xl border border-muted bg-card text-xs font-medium text-foreground shadow-sm transition hover:border-primary hover:text-primary hover:shadow-md cursor-grab active:cursor-grabbing"
                                         >
                                             <item.icon className="h-5 w-5 text-muted-foreground" />

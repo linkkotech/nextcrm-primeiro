@@ -3,8 +3,9 @@
 import { getAuthSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { heroContentSchema } from "@/schemas/block-content.schemas";
 import { BlockType } from "@prisma/client";
+import { blockSchemaMap, supportedBlockTypes } from "@/schemas/blocks";
+import { ZodError } from "zod";
 
 /**
  * Atualiza o conteúdo de um bloco de template.
@@ -28,27 +29,34 @@ export async function updateBlockContent(
             return { error: "Acesso negado. Permissão de administrador necessária." };
         }
 
-        // 2. Validation based on Type
-        let validatedContent;
+        // 2. Validation based on Type using Schema Map
+        const schema = blockSchemaMap[blockType];
+        
+        console.log("🔍 Tipo de bloco recebido:", blockType);
+        console.log("📋 Schema selecionado:", schema ? 'encontrado' : 'NÃO ENCONTRADO');
+        
+        if (!schema) {
+            return { 
+                error: `Schema de validação não encontrado para o tipo: ${blockType}. Tipos disponíveis: ${supportedBlockTypes.join(', ')}` 
+            };
+        }
 
+        let validatedContent;
+        
         try {
-            switch (blockType) {
-                case "HERO":
-                    validatedContent = heroContentSchema.parse(newContent);
-                    break;
-                // Futuros tipos:
-                // case "BIO":
-                //     validatedContent = bioContentSchema.parse(newContent);
-                //     break;
-                default:
-                    // Se não tiver schema específico, aceita como está (cuidado em prod)
-                    // ou lança erro. Para desenvolvimento incremental, vamos aceitar.
-                    console.warn(`Schema de validação não encontrado para tipo: ${blockType}`);
-                    validatedContent = newContent;
+            validatedContent = schema.parse(newContent);
+        } catch (error) {
+            if (error instanceof ZodError) {
+                const flattenedErrors = error.flatten();
+                console.error("Erro de validação Zod:", flattenedErrors);
+                console.error("Dados recebidos:", JSON.stringify(newContent, null, 2));
+                return {
+                    error: "Dados inválidos. Verifique os erros de campo.",
+                    zodError: flattenedErrors,
+                    fieldErrors: flattenedErrors.fieldErrors,
+                };
             }
-        } catch (validationError) {
-            console.error("Erro de validação:", validationError);
-            return { error: "Dados inválidos para este tipo de bloco." };
+            throw error;
         }
 
         // 3. Persistence
@@ -123,6 +131,19 @@ export async function createTemplateBlock(
                     title: "Novo Hero",
                     subtitle: "Descrição do hero",
                     backgroundColor: "#ffffff"
+                };
+                break;
+            case "SECTION":
+                initialContent = {
+                    layerName: "Nova Section",
+                    background: { type: "solid", solidColor: "#ffffff" },
+                    layout: { 
+                        mode: "contained", 
+                        padding: { top: 20, right: 20, bottom: 20, left: 20 },
+                        margin: { top: 0, right: 0, bottom: 0, left: 0 }
+                    },
+                    border: { width: 0, radius: 0, style: "solid", color: "#000000" },
+                    advanced: { customCss: "", visibilityRules: [] }
                 };
                 break;
             default:

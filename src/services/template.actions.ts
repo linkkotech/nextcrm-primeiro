@@ -3,13 +3,21 @@
 import { prisma } from "@/lib/prisma";
 import { getAuthSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
-import { TemplateType } from "@prisma/client";
+import { TemplateType, BlockType } from "@prisma/client";
 
 /**
  * Creates a new Digital Template (container).
  * 
+ * Para type='content_block':
+ * - Cria automaticamente o primeiro TemplateBlock
+ * - Retorna { template, firstBlockId } para redirecionar ao Block Editor
+ * 
+ * Para outros types:
+ * - Retorna { template, firstBlockId: null }
+ * - Cliente deve redirecionar para Template Editor
+ * 
  * @param data - { name, description, type }
- * @returns The created template object or throws error.
+ * @returns Object with template and optional firstBlockId
  */
 export async function createDigitalTemplate(data: {
     name: string;
@@ -21,6 +29,7 @@ export async function createDigitalTemplate(data: {
         throw new Error("Unauthorized");
     }
 
+    // Criar o template
     const template = await prisma.digitalTemplate.create({
         data: {
             name: data.name,
@@ -30,8 +39,36 @@ export async function createDigitalTemplate(data: {
         },
     });
 
+    let firstBlockId: string | null = null;
+
+    // LÓGICA ESPECIAL: Para content_block, criar o primeiro TemplateBlock automaticamente
+    if (data.type === 'content_block') {
+        const initialContent = {
+            elements: [],
+            metadata: {
+                name: data.name,
+                description: data.description || undefined,
+            },
+        };
+
+        const block = await prisma.templateBlock.create({
+            data: {
+                type: 'SECTION' as BlockType, // Tipo padrão para content_blocks
+                content: initialContent,
+                sortOrder: 0,
+                templateId: template.id,
+            },
+        });
+
+        firstBlockId = block.id;
+    }
+
     revalidatePath("/admin/digital-templates");
-    return template;
+    
+    return { 
+        template, 
+        firstBlockId, // null para profile_template, blockId para content_block
+    };
 }
 
 /**

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getAuthSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { BlockEditorClient } from "@/components/admin/templates/editor/BlockEditorClient";
+import { EditorPanelProvider } from "@/context/EditorPanelContext";
 
 /**
  * Block Editor Page - Server Component
@@ -15,9 +16,9 @@ import { BlockEditorClient } from "@/components/admin/templates/editor/BlockEdit
 export default async function BlockEditorPage({
     params,
 }: {
-    params: { blockId: string; locale: string };
+    params: Promise<{ blockId: string; locale: string }>;
 }) {
-    const { blockId, locale } = params;
+    const { blockId, locale } = await params;
 
     // EDGE CASE: Validação de autenticação
     const session = await getAuthSession();
@@ -56,13 +57,15 @@ export default async function BlockEditorPage({
     const t = await getTranslations("admin.blockEditor");
 
     return (
-        <BlockEditorClient
-            block={block}
-            translations={{
-                canvas: t("canvas", { defaultValue: "Canvas de Edição" }),
-                properties: t("properties", { defaultValue: "Painel de Propriedades" }),
-                save: t("save", { defaultValue: "Salvar" }),
-            }}
-        />
+        <EditorPanelProvider>
+            <BlockEditorClient
+                block={block}
+                translations={{
+                    canvas: t("canvas", { defaultValue: "Canvas de Edição" }),
+                    properties: t("properties", { defaultValue: "Painel de Propriedades" }),
+                    save: t("save", { defaultValue: "Salvar" }),
+                }}
+            />
+        </EditorPanelProvider>
     );
 }

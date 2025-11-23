@@ -63,11 +63,19 @@ export function CreateTemplateSheet() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const template = await createDigitalTemplate(values);
+            const result = await createDigitalTemplate(values);
             toast.success("Template criado com sucesso!");
             setOpen(false);
             form.reset();
-            router.push(`/${locale}/admin/digital-templates/${template.id}`);
+            
+            // ROTEAMENTO CONDICIONAL baseado no tipo
+            if (values.type === 'content_block' && result.firstBlockId) {
+                // Content Block → Redirecionar direto para o Block Editor
+                router.push(`/${locale}/admin/editor/${result.firstBlockId}`);
+            } else {
+                // Profile Template → Redirecionar para o Template Editor (lista de blocos)
+                router.push(`/${locale}/admin/digital-templates/${result.template.id}`);
+            }
         } catch (error) {
             console.error(error);
             toast.error("Erro ao criar template. Tente novamente.");

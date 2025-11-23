@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { MoreVertical, Pencil, Trash2, Layers, Users } from "lucide-react";
+import { toast } from "sonner";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +17,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DeleteTemplateDialog } from "./DeleteTemplateDialog";
 
 interface Template {
     id: string;
@@ -40,6 +43,7 @@ interface TemplateCardProps {
 export function TemplateCard({ template }: TemplateCardProps) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const locale = useLocale();
+    const router = useRouter();
     const firstBlockId = template.blocks?.[0]?.id;
 
     const editHref = template.type === "profile_template"
@@ -48,6 +52,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
             ? `/${locale}/admin/editor/${firstBlockId}`
             : "";
     const editDisabled = !editHref;
+
+    function handleDeleteSuccess() {
+        toast.success("Template removido com sucesso!");
+        router.refresh(); // Atualizar lista de templates
+    }
+
+    function handleDeleteError(error: string) {
+        toast.error(error || "Erro ao remover template");
+    }
 
     return (
         <>
@@ -129,6 +142,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
                     </div>
                 </CardContent>
             </Card>
+            
+            <DeleteTemplateDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                templateId={template.id}
+                templateName={template.name}
+                onSuccess={handleDeleteSuccess}
+                onError={handleDeleteError}
+            />
         </>
     );
 }
